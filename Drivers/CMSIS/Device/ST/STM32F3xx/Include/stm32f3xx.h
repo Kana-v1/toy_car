@@ -8,9 +8,9 @@
   *          is using in the C source code, usually in main.c. This file contains:
   *           - Configuration section that allows to select:
   *              - The STM32F3xx device used in the target application
-  *              - To use or not the peripheral's drivers in application code(i.e. 
+  *              - To use or not the peripheral's board_drivers in application code(i.e.
   *                code will be based on direct access to peripheral's registers 
-  *                rather than drivers API), this option is controlled by 
+  *                rather than board_drivers API), this option is controlled by
   *                "#define USE_HAL_DRIVER"
   *  
   ******************************************************************************
@@ -94,8 +94,8 @@
   */
 #if !defined  (USE_HAL_DRIVER)
 /**
- * @brief Comment the line below if you will not use the peripherals drivers.
-   In this case, these drivers will not be included and the application code will 
+ * @brief Comment the line below if you will not use the peripherals board_drivers.
+   In this case, these board_drivers will not be included and the application code will
    be based on direct access to peripherals registers 
    */
   /*#define USE_HAL_DRIVER */

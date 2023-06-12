@@ -22,7 +22,7 @@
   ==============================================================================
     [..]
     The common HAL driver contains a set of generic and common APIs that can be
-    used by the PPP peripheral drivers and the user to start using the HAL.
+    used by the PPP peripheral board_drivers and the user to start using the HAL.
     [..]
     The HAL contains two APIs categories:
          (+) HAL Initialization and de-initialization functions

@@ -20,9 +20,21 @@
 #define GPIOE_PCLK_EN()    (RCC->AHBENR |= (1 << 21))
 #define GPIOF_PCLK_EN()    (RCC->AHBENR |= (1 << 22))
 
+#define SYSCLK_PCLK_EN()         (RCC->APB2ENR |= (1 << 0))
+
+
 #define ENABLE      1
 #define DISABLE     0
 #define SET         ENABLE
 #define RESET       DISABLE
+
+
+#define IRQ_NO_EXTI0            6
+#define IRQ_NO_EXTI1            7
+#define IRQ_NO_EXTI2_TS         8
+#define IRQ_NO_EXTI3            9
+#define IRQ_NO_EXTI4            10
+#define IRQ_NO_EXTI9_5          23
+#define IRQ_NO_EXTI15_10        40
 
 #endif //TOY_CAR_DRIVERS_GENERAL_H

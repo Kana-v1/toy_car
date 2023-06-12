@@ -4,6 +4,7 @@
 
 #include "gpio.h"
 
+static uint8_t gpioBaseAddrToCode(GPIO_TypeDef *pGPIOx);
 
 void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
     GPIO_PeriClockEnable(pGPIOHandle->pGPIOx);
@@ -16,7 +17,29 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
         pGPIOHandle->pGPIOx->MODER |= tmp;
         tmp = 0;
     } else {
+        // configure interrupts
+        if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INPUT_FALLING_EDGE_TRIGGER) {
+            EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+            EXTI->RTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+        } else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INPUT_RAISING_EDGE_TRIGGER) {
+            EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+            EXTI->FTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+        } else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INPUT_RAISING_EDGE_FALLING_EDGE_TRIGGER) {
+            EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+            EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+        }
 
+        EXTI->IMR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
+
+        uint8_t groupsInExtiRegister = 4;
+        uint8_t bitsInExtiGroup = 4;
+
+        uint8_t extiIndex = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber / groupsInExtiRegister;
+        uint8_t bitsOffset = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber % groupsInExtiRegister * bitsInExtiGroup;
+
+        uint8_t portCode = gpioBaseAddrToCode(pGPIOHandle->pGPIOx);
+        SYSCLK_PCLK_EN();
+        SYSCFG->EXTICR[extiIndex] = (portCode << bitsOffset);
     }
 
     tmp |= pGPIOHandle->GPIO_PinConfig.GPIO_PinSpeed << (2 * pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
@@ -32,7 +55,6 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
     tmp |= pGPIOHandle->GPIO_PinConfig.GPIO_PinOPType << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber;
     pGPIOHandle->pGPIOx->OTYPER &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
     pGPIOHandle->pGPIOx->OTYPER |= tmp;
-    tmp = 0;
 
     if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode == GPIO_PIN_MODE_ALT_FN) {
         uint8_t afrRegisters = 8;
@@ -98,10 +120,61 @@ void GPIO_ToggleOutputPin(GPIO_TypeDef *pGPIOx, uint8_t pinNumber) {
     pGPIOx->ODR ^= (1 << pinNumber);
 }
 
-void GPIO_IRQConfig(uint8_t IRQNumber, uint8_t IRQPriority, uint8_t enOrDi) {
+void GPIO_IRQConfig(uint8_t IRQNumber, uint8_t enOrDi) {
+    uint8_t iserBits = 32;
+    uint8_t iserIndex = IRQNumber / iserBits;
+    uint8_t iserBitOffset = IRQNumber % iserBits;
 
+    if (enOrDi == ENABLE) {
+        NVIC->ISER[iserIndex] |= (1 << iserBitOffset);
+        return;
+    }
+
+    NVIC->ISER[iserIndex] &= ~(1 << iserBitOffset);
+}
+
+void GPIO_IRQPriorityConfig(uint8_t priority, uint8_t IRQNumber) {
+    uint8_t numNoImplementedBits = 4;
+
+    uint8_t ipRegisterSections = 4;
+    uint8_t bitsInSection = 8;
+
+    uint8_t ipIndex = IRQNumber / ipRegisterSections;
+    uint8_t ipOffset = IRQNumber % ipRegisterSections * bitsInSection + (8 - numNoImplementedBits);
+
+    NVIC->IP[ipIndex] = (priority << ipOffset);
 }
 
 void GPIO_IRQHandling(uint8_t pinNumber) {
+    // clear the exti pr register corresponding to the pin's number
+    if (EXTI->PR & (1 << pinNumber)) {
+        // clear the pr register
+        EXTI->PR |= (1 << pinNumber);
+    }
+}
 
+static uint8_t gpioBaseAddrToCode(GPIO_TypeDef *pGPIOx) {
+    if (pGPIOx == GPIOA) {
+        return 0b000;
+    }
+
+    if (pGPIOx == GPIOB) {
+        return 0b001;
+    }
+
+    if (pGPIOx == GPIOC) {
+        return 0b010;
+    }
+
+    if (pGPIOx == GPIOD) {
+        return 0b011;
+    }
+
+    if (pGPIOx == GPIOE) {
+        return 0b100;
+    }
+
+    if (pGPIOx == GPIOF) {
+        return 0b101;
+    }
 }

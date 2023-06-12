@@ -23,14 +23,15 @@ typedef struct {
 } GPIO_Handle_t;
 
 // @GPIO_PinMode
-#define GPIO_PIN_MODE_INPUT                     0
-#define GPIO_PIN_MODE_OUTPUT                    1
-#define GPIO_PIN_MODE_ALT_FN                    2
-#define GPIO_PIN_MODE_ANALOG                    3
-#define GPIO_MODE_INPUT_FALLING_EDGE            4
-#define GPIO_MODE_INPUT_RISING_EDGE             5
-#define GPIO_MODE_INPUT_FALLING_EDGE_TRIGGER    5
-#define GPIO_MODE_INPUT_RAISING_EDGE_TRIGGER    6
+#define GPIO_PIN_MODE_INPUT                                  0
+#define GPIO_PIN_MODE_OUTPUT                                 1
+#define GPIO_PIN_MODE_ALT_FN                                 2
+#define GPIO_PIN_MODE_ANALOG                                 3
+#define GPIO_MODE_INPUT_FALLING_EDGE                         4
+#define GPIO_MODE_INPUT_RISING_EDGE                          5
+#define GPIO_MODE_INPUT_FALLING_EDGE_TRIGGER                 5
+#define GPIO_MODE_INPUT_RAISING_EDGE_TRIGGER                 6
+#define GPIO_MODE_INPUT_RAISING_EDGE_FALLING_EDGE_TRIGGER    7
 
 // @GPIO_PinOPType
 #define GPIO_OUTPUT_TYPE_PUSH_PULL    0
@@ -61,7 +62,9 @@ void GPIO_WriteToOutputPort(GPIO_TypeDef *pGPIOx, uint16_t value);
 
 void GPIO_ToggleOutputPin(GPIO_TypeDef *pGPIOx, uint8_t pinNumber);
 
-void GPIO_IRQConfig(uint8_t IRQNumber, uint8_t IRQPriority, uint8_t enOrDi);
+void GPIO_IRQConfig(uint8_t IRQNumber, uint8_t enOrDi);
+
+void GPIO_IRQPriorityConfig(uint8_t priority, uint8_t IRQNumber);
 
 void GPIO_IRQHandling(uint8_t pinNumber);
 
