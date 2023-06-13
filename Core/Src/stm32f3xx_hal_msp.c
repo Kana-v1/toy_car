@@ -71,7 +71,7 @@ void HAL_MspInit(void)
 
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_0);
 
-  /* System interrupt init*/
+  /* System interrupt carInit*/
 
   /* USER CODE BEGIN MspInit 1 */
 

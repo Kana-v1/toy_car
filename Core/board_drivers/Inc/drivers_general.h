@@ -37,4 +37,9 @@
 #define IRQ_NO_EXTI9_5          23
 #define IRQ_NO_EXTI15_10        40
 
+#define IRQ_PRIO_15             15
+
+
+void GPIO_InterruptCallback(uint8_t extiLine);
+
 #endif //TOY_CAR_DRIVERS_GENERAL_H

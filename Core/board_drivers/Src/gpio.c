@@ -18,13 +18,13 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
         tmp = 0;
     } else {
         // configure interrupts
-        if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INPUT_FALLING_EDGE_TRIGGER) {
+        if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INTERRUPT_FALLING_EDGE) {
             EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
             EXTI->RTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
-        } else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INPUT_RAISING_EDGE_TRIGGER) {
+        } else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INTERRUPT_RISING_EDGE) {
             EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
             EXTI->FTSR &= ~(1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
-        } else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INPUT_RAISING_EDGE_FALLING_EDGE_TRIGGER) {
+        } else if (pGPIOHandle->GPIO_PinConfig.GPIO_PinMode <= GPIO_MODE_INTERRUPT_RAISING_EDGE_FALLING_EDGE) {
             EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
             EXTI->RTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
         }

@@ -23,15 +23,13 @@ typedef struct {
 } GPIO_Handle_t;
 
 // @GPIO_PinMode
-#define GPIO_PIN_MODE_INPUT                                  0
-#define GPIO_PIN_MODE_OUTPUT                                 1
-#define GPIO_PIN_MODE_ALT_FN                                 2
-#define GPIO_PIN_MODE_ANALOG                                 3
-#define GPIO_MODE_INPUT_FALLING_EDGE                         4
-#define GPIO_MODE_INPUT_RISING_EDGE                          5
-#define GPIO_MODE_INPUT_FALLING_EDGE_TRIGGER                 5
-#define GPIO_MODE_INPUT_RAISING_EDGE_TRIGGER                 6
-#define GPIO_MODE_INPUT_RAISING_EDGE_FALLING_EDGE_TRIGGER    7
+#define GPIO_PIN_MODE_INPUT                                      0
+#define GPIO_PIN_MODE_OUTPUT                                     1
+#define GPIO_PIN_MODE_ALT_FN                                     2
+#define GPIO_PIN_MODE_ANALOG                                     3
+#define GPIO_MODE_INTERRUPT_FALLING_EDGE                         4
+#define GPIO_MODE_INTERRUPT_RISING_EDGE                          5
+#define GPIO_MODE_INTERRUPT_RAISING_EDGE_FALLING_EDGE            6
 
 // @GPIO_PinOPType
 #define GPIO_OUTPUT_TYPE_PUSH_PULL    0

@@ -16,4 +16,5 @@ toy_car.bin
 toy_car.elf
 toy_car.hex
 toy_car.map
-cmake-build-debug/
+cmake-build-debug/*/
+registers.svd
