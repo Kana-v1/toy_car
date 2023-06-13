@@ -39,6 +39,11 @@
 
 #define IRQ_PRIO_15             15
 
+#define LED_PORT        GPIOE
+
+#define GREEN_LED_PIN   11
+#define RED_LED_PIN     10
+
 
 void GPIO_InterruptCallback(uint8_t extiLine);
 
