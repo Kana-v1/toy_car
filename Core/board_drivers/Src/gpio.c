@@ -97,7 +97,7 @@ void GPIO_PeriClockEnable(GPIO_TypeDef *pGPIOx) {
 }
 
 uint8_t GPIO_ReadFromInputPin(GPIO_TypeDef *pGPIOx, uint8_t pinNumber) {
-    return (uint8_t) ((pGPIOx->IDR >> pinNumber) & 1);
+    return (pGPIOx->IDR >> pinNumber) & 1;
 }
 
 uint32_t GPIO_ReadFromInputPort(GPIO_TypeDef *pGPIOx) {

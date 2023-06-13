@@ -7,7 +7,7 @@
 static void fixBtnDebounce(void);
 
 void carInit(void) {
-    GPIO_Handle_t btn, led;
+    GPIO_Handle_t btn, led, obstaclesScanner;
 
     led.pGPIOx = GPIOE;
     led.GPIO_PinConfig.GPIO_PinNumber = GREEN_LED_PIN;
@@ -30,8 +30,18 @@ void carInit(void) {
 
     GPIO_Init(&btn);
 
-    GPIO_IRQConfig(IRQ_NO_EXTI0, ENABLE);
-    GPIO_IRQPriorityConfig(IRQ_PRIO_15, IRQ_NO_EXTI0);
+    obstaclesScanner.pGPIOx = OBSTACLES_SCANNER_PORT;
+    obstaclesScanner.GPIO_PinConfig.GPIO_PinNumber = OBSTACLES_SCANNER_PIN;
+    obstaclesScanner.GPIO_PinConfig.GPIO_PinMode = GPIO_PIN_MODE_INPUT;
+    obstaclesScanner.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
+    obstaclesScanner.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PD;
+    obstaclesScanner.GPIO_PinConfig.GPIO_PinOPType = GPIO_OUTPUT_TYPE_PUSH_PULL;
+
+    GPIO_Init(&obstaclesScanner);
+
+
+    GPIO_IRQConfig(IRQ_NO_EXTI0, ENABLE);                   // enable interrupts for button
+    GPIO_IRQPriorityConfig(IRQ_PRIO_15, IRQ_NO_EXTI0);      // enable interrupts for button
 }
 
 uint8_t getCarState(void) {
@@ -43,11 +53,19 @@ void toggleCarState(void) {
     GPIO_ToggleOutputPin(GPIOE, RED_LED_PIN);
 }
 
+void toggleObstaclesScanner(void) {
+    RCC->AHBENR ^= (1 << 19);
+}
+
+uint8_t isObstacleAhead(void) {
+    return !(GPIO_ReadFromInputPin(OBSTACLES_SCANNER_PORT, OBSTACLES_SCANNER_PIN));
+}
+
 void GPIO_InterruptCallback(uint8_t extiLine) {
     fixBtnDebounce();
     toggleCarState();
 }
 
 void fixBtnDebounce(void) {
-    for (uint16_t i = 0; i < 20000; i++){}
+    for (uint16_t i = 0; i < 20000; i++) {}
 }
