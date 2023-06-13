@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
-//#include <stdio_ext.h>
 #include "stm32f303xc.h"
 #include "gpio.h"
 
@@ -39,6 +38,11 @@
 #define IRQ_NO_EXTI15_10        40
 
 #define IRQ_PRIO_15             15
+
+#define LED_PORT        GPIOE
+
+#define GREEN_LED_PIN   11
+#define RED_LED_PIN     10
 
 
 void GPIO_InterruptCallback(uint8_t extiLine);

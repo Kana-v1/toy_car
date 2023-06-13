@@ -10,9 +10,6 @@
 #define CAR_STATE_ON    1
 #define CAR_STATE_OFF   0
 
-#define GREEN_LED_PIN   11
-#define RED_LED_PIN     10
-
 #define OBSTACLES_SCANNER_PORT  GPIOC
 #define OBSTACLES_SCANNER_PIN   14
 

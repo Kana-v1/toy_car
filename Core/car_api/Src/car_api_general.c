@@ -9,7 +9,7 @@ static void fixBtnDebounce(void);
 void carInit(void) {
     GPIO_Handle_t btn, led, obstaclesScanner;
 
-    led.pGPIOx = GPIOE;
+    led.pGPIOx = LED_PORT;
     led.GPIO_PinConfig.GPIO_PinNumber = GREEN_LED_PIN;
     led.GPIO_PinConfig.GPIO_PinMode = GPIO_PIN_MODE_OUTPUT;
     led.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
@@ -49,8 +49,8 @@ uint8_t getCarState(void) {
 }
 
 void toggleCarState(void) {
-    GPIO_ToggleOutputPin(GPIOE, GREEN_LED_PIN);
-    GPIO_ToggleOutputPin(GPIOE, RED_LED_PIN);
+    GPIO_ToggleOutputPin(LED_PORT, GREEN_LED_PIN);
+    GPIO_ToggleOutputPin(LED_PORT, RED_LED_PIN);
 }
 
 void toggleObstaclesScanner(void) {
@@ -67,5 +67,5 @@ void GPIO_InterruptCallback(uint8_t extiLine) {
 }
 
 void fixBtnDebounce(void) {
-    for (uint16_t i = 0; i < 20000; i++) {}
+    for (uint16_t i = 0; i < 50000; i++) {}
 }
