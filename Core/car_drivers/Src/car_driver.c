@@ -36,8 +36,8 @@ void initCarManagementPeripheral(void) {
     GPIO_Init(&led);
     GPIO_ToggleOutputPin(GPIOE, RED_LED_PIN);
 
-    btn.pGPIOx = GPIOA;
-    btn.GPIO_PinConfig.GPIO_PinNumber = 0;
+    btn.pGPIOx = TOGGLE_STATE_BTN_PORT;
+    btn.GPIO_PinConfig.GPIO_PinNumber = TOGGLE_STATE_BTN_PIN;
     btn.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_INTERRUPT_FALLING_EDGE;
     btn.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
     btn.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PD;
@@ -49,9 +49,42 @@ void initCarManagementPeripheral(void) {
     GPIO_IRQPriorityConfig(IRQ_PRIO_15, IRQ_NO_EXTI0);      // enable interrupts for button
 }
 
+
+void moveForward(void) {
+    engineClockWiseRotating(RIGHT_ENGINE);
+    engineClockWiseRotating(LEFT_ENGINE);
+}
+
+void moveBack(void) {
+    engineAnticlockwiseRotating(RIGHT_ENGINE);
+    engineAnticlockwiseRotating(LEFT_ENGINE);
+}
+
+void rotateRight(uint8_t rotateSpeed) {
+    engineClockWiseRotating(LEFT_ENGINE);
+
+    if (rotateSpeed == ROTATE_SPEED_FAST) {
+        engineAnticlockwiseRotating(RIGHT_ENGINE);
+    } else {
+        engineHold(RIGHT_ENGINE);
+    }
+}
+
+void rotateLeft(uint8_t rotateSpeed) {
+    engineClockWiseRotating(RIGHT_ENGINE);
+
+    if (rotateSpeed == ROTATE_SPEED_FAST) {
+        engineAnticlockwiseRotating(LEFT_ENGINE);
+    } else {
+        engineHold(LEFT_ENGINE);
+    }
+}
+
 void GPIO_InterruptCallback(uint8_t extiLine) {
     fixBtnDebounce();
-    toggleCarState();
+    if (extiLine == TOGGLE_STATE_BTN_PIN) {
+        toggleCarState();
+    }
 }
 
 void fixBtnDebounce(void) {

@@ -7,7 +7,7 @@
 static uint8_t getCRPin(uint8_t engineSide);    // counterclockwise pin
 static uint8_t getACRPin(uint8_t engineSide);   // anticlockwise pin
 
-void clockWiseRotating(uint8_t engineSide) {
+void engineClockWiseRotating(uint8_t engineSide) {
     uint8_t acrPin = getACRPin(engineSide);
     uint8_t crPin = getCRPin(engineSide);
 
@@ -15,7 +15,7 @@ void clockWiseRotating(uint8_t engineSide) {
     GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, DISABLE);
 }
 
-void anticlockwiseRotating(uint8_t engineSide) {
+void engineAnticlockwiseRotating(uint8_t engineSide) {
     uint8_t acrPin = getACRPin(engineSide);
     uint8_t crPin = getCRPin(engineSide);
 
@@ -23,7 +23,7 @@ void anticlockwiseRotating(uint8_t engineSide) {
     GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, ENABLE);
 }
 
-void hold(uint8_t engineSide) {
+void engineHold(uint8_t engineSide) {
     uint8_t acrPin = getACRPin(engineSide);
     uint8_t crPin = getCRPin(engineSide);
 
@@ -32,22 +32,27 @@ void hold(uint8_t engineSide) {
 }
 
 void turnOffEngines(void) {
-    hold(RIGHT_ENGINE);
-    hold(LEFT_ENGINE);
+    engineHold(RIGHT_ENGINE);
+    engineHold(LEFT_ENGINE);
 }
 
 void initEngines(void) {
     GPIO_Handle_t engine;
 
     engine.pGPIOx = ENGINE_PORT;
-    engine.GPIO_PinConfig.GPIO_PinNumber = LEFT_ENGINE;
+    engine.GPIO_PinConfig.GPIO_PinNumber = LECR;
     engine.GPIO_PinConfig.GPIO_PinMode = GPIO_PIN_MODE_OUTPUT;
     engine.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
     engine.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PD;
     engine.GPIO_PinConfig.GPIO_PinOPType = GPIO_OUTPUT_TYPE_PUSH_PULL;
 
     GPIO_Init(&engine);
-    engine.GPIO_PinConfig.GPIO_PinNumber = RIGHT_ENGINE;
+    engine.GPIO_PinConfig.GPIO_PinNumber = LEACR;
+    GPIO_Init(&engine);
+
+    engine.GPIO_PinConfig.GPIO_PinNumber = RECR;
+    GPIO_Init(&engine);
+    engine.GPIO_PinConfig.GPIO_PinNumber = REACR;
     GPIO_Init(&engine);
 }
 
