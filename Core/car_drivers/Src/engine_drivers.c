@@ -11,24 +11,24 @@ void engineClockWiseRotating(uint8_t engineSide) {
     uint8_t acrPin = getACRPin(engineSide);
     uint8_t crPin = getCRPin(engineSide);
 
-    GPIO_WriteToOutputPin(ENGINE_PORT, crPin, ENABLE);
-    GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, DISABLE);
+    GPIO_WriteToOutputPin(ENGINE_PORT, crPin, SET);
+    GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, RESET);
 }
 
 void engineAnticlockwiseRotating(uint8_t engineSide) {
     uint8_t acrPin = getACRPin(engineSide);
     uint8_t crPin = getCRPin(engineSide);
 
-    GPIO_WriteToOutputPin(ENGINE_PORT, crPin, DISABLE);
-    GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, ENABLE);
+    GPIO_WriteToOutputPin(ENGINE_PORT, crPin, RESET);
+    GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, SET);
 }
 
 void engineHold(uint8_t engineSide) {
     uint8_t acrPin = getACRPin(engineSide);
     uint8_t crPin = getCRPin(engineSide);
 
-    GPIO_WriteToOutputPin(ENGINE_PORT, crPin, ENABLE);
-    GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, ENABLE);
+    GPIO_WriteToOutputPin(ENGINE_PORT, crPin, SET);
+    GPIO_WriteToOutputPin(ENGINE_PORT, acrPin, SET);
 }
 
 void turnOffEngines(void) {

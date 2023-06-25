@@ -4,8 +4,6 @@
 
 #include "car_driver.h"
 
-static void fixBtnDebounce(void);
-
 void carInit(void) {
     initCarManagementPeripheral();
     initObstaclesSensor();
@@ -19,6 +17,12 @@ uint8_t getCarState(void) {
 void toggleCarState(void) {
     GPIO_ToggleOutputPin(LED_PORT, GREEN_LED_PIN);
     GPIO_ToggleOutputPin(LED_PORT, RED_LED_PIN);
+
+    if (getCarState() == CAR_STATE_ON) {
+        moveForward();
+    } else {
+        stop();
+    }
 }
 
 void initCarManagementPeripheral(void) {
@@ -60,6 +64,10 @@ void moveBack(void) {
     engineAnticlockwiseRotating(LEFT_ENGINE);
 }
 
+void stop(void) {
+    turnOffEngines();
+}
+
 void rotateRight(uint8_t rotateSpeed) {
     engineClockWiseRotating(LEFT_ENGINE);
 
@@ -80,13 +88,7 @@ void rotateLeft(uint8_t rotateSpeed) {
     }
 }
 
-void GPIO_InterruptCallback(uint8_t extiLine) {
-    fixBtnDebounce();
-    if (extiLine == TOGGLE_STATE_BTN_PIN) {
-        toggleCarState();
-    }
+void handleBtnInterrupt(void) {
+    toggleCarState();
 }
 
-void fixBtnDebounce(void) {
-    for (uint16_t i = 0; i < 50000; i++) {}
-}

@@ -10,6 +10,9 @@
 #define OBSTACLES_SCANNER_PORT  GPIOC
 #define OBSTACLES_SCANNER_PIN   14
 
+#define OBSTACLE_NOT_DEFINED    0
+#define OBSTACLE_DEFINED        1
+
 void initObstaclesSensor(void);
 
 void toggleObstaclesSensor(void);

@@ -8910,7 +8910,7 @@ typedef struct
 #define I2C_TIMINGR_SCLH             I2C_TIMINGR_SCLH_Msk                      /*!< SCL high period (master mode) */
 #define I2C_TIMINGR_SDADEL_Pos       (16U)                                     
 #define I2C_TIMINGR_SDADEL_Msk       (0xFUL << I2C_TIMINGR_SDADEL_Pos)          /*!< 0x000F0000 */
-#define I2C_TIMINGR_SDADEL           I2C_TIMINGR_SDADEL_Msk                    /*!< Data hold time */
+#define I2C_TIMINGR_SDADEL           I2C_TIMINGR_SDADEL_Msk                    /*!< Data engineHold time */
 #define I2C_TIMINGR_SCLDEL_Pos       (20U)                                     
 #define I2C_TIMINGR_SCLDEL_Msk       (0xFUL << I2C_TIMINGR_SCLDEL_Pos)          /*!< 0x00F00000 */
 #define I2C_TIMINGR_SCLDEL           I2C_TIMINGR_SCLDEL_Msk                    /*!< Data setup time */
