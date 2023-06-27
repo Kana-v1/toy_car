@@ -71,7 +71,7 @@ typedef struct
                                      This feature can be modified afterwards using unitary function
                                      @ref LL_I2C_SetMode(). */
 
-  uint32_t Timing;              /*!< Specifies the SDA setup, hold time and the SCL high, low period values.
+  uint32_t Timing;              /*!< Specifies the SDA setup, engineHold time and the SCL high, low period values.
                                      This parameter must be set by referring to the STM32CubeMX Tool and
                                      the helper macro @ref __LL_I2C_CONVERT_TIMINGS().
 
@@ -385,7 +385,7 @@ typedef struct
   * @{
   */
 /**
-  * @brief  Configure the SDA setup, hold time and the SCL high, low period.
+  * @brief  Configure the SDA setup, engineHold time and the SCL high, low period.
   * @param  __PRESCALER__ This parameter must be a value between  Min_Data=0 and Max_Data=0xF.
   * @param  __SETUP_TIME__ This parameter must be a value between Min_Data=0 and Max_Data=0xF.
                            (tscldel = (SCLDEL+1)xtpresc)
@@ -911,7 +911,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsEnabledOwnAddress2(const I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  Configure the SDA setup, hold time and the SCL high, low period.
+  * @brief  Configure the SDA setup, engineHold time and the SCL high, low period.
   * @note   This bit can only be programmed when the I2C is disabled (PE = 0).
   * @rmtoll TIMINGR      TIMINGR       LL_I2C_SetTiming
   * @param  I2Cx I2C Instance.
@@ -958,7 +958,7 @@ __STATIC_INLINE uint32_t LL_I2C_GetClockHighPeriod(const I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  Get the SDA hold time.
+  * @brief  Get the SDA engineHold time.
   * @rmtoll TIMINGR      SDADEL        LL_I2C_GetDataHoldTime
   * @param  I2Cx I2C Instance.
   * @retval Value between Min_Data=0x0 and Max_Data=0xF

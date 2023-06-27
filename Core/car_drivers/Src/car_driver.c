@@ -4,8 +4,6 @@
 
 #include "car_driver.h"
 
-static void fixBtnDebounce(void);
-
 void carInit(void) {
     initCarManagementPeripheral();
     initObstaclesSensor();
@@ -13,12 +11,18 @@ void carInit(void) {
 }
 
 uint8_t getCarState(void) {
-    return GPIOE->ODR & (1 << GREEN_LED_PIN);
+    return (LED_PORT->ODR >> GREEN_LED_PIN) & 1;
 }
 
 void toggleCarState(void) {
     GPIO_ToggleOutputPin(LED_PORT, GREEN_LED_PIN);
     GPIO_ToggleOutputPin(LED_PORT, RED_LED_PIN);
+
+    if (getCarState() == CAR_STATE_ON) {
+        moveForward();
+    } else {
+        stop();
+    }
 }
 
 void initCarManagementPeripheral(void) {
@@ -34,10 +38,10 @@ void initCarManagementPeripheral(void) {
     GPIO_Init(&led);
     led.GPIO_PinConfig.GPIO_PinNumber = RED_LED_PIN;
     GPIO_Init(&led);
-    GPIO_ToggleOutputPin(GPIOE, RED_LED_PIN);
+    GPIO_ToggleOutputPin(LED_PORT, GREEN_LED_PIN);
 
-    btn.pGPIOx = GPIOA;
-    btn.GPIO_PinConfig.GPIO_PinNumber = 0;
+    btn.pGPIOx = TOGGLE_STATE_BTN_PORT;
+    btn.GPIO_PinConfig.GPIO_PinNumber = TOGGLE_STATE_BTN_PIN;
     btn.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_INTERRUPT_FALLING_EDGE;
     btn.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
     btn.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PD;
@@ -49,11 +53,58 @@ void initCarManagementPeripheral(void) {
     GPIO_IRQPriorityConfig(IRQ_PRIO_15, IRQ_NO_EXTI0);      // enable interrupts for button
 }
 
-void GPIO_InterruptCallback(uint8_t extiLine) {
-    fixBtnDebounce();
+
+void moveForward(void) {
+    if (getCarState() == CAR_STATE_OFF) {
+        return;
+    }
+
+    engineClockWiseRotating(RIGHT_ENGINE);
+    engineClockWiseRotating(LEFT_ENGINE);
+}
+
+void moveBack(void) {
+    if (getCarState() == CAR_STATE_OFF) {
+        return;
+    }
+
+    engineAnticlockwiseRotating(RIGHT_ENGINE);
+    engineAnticlockwiseRotating(LEFT_ENGINE);
+}
+
+void stop(void) {
+    turnOffEngines();
+}
+
+void rotateRight(uint8_t rotateSpeed) {
+    if (getCarState() == CAR_STATE_OFF) {
+        return;
+    }
+
+    engineClockWiseRotating(LEFT_ENGINE);
+
+    if (rotateSpeed == ROTATE_SPEED_FAST) {
+        engineAnticlockwiseRotating(RIGHT_ENGINE);
+    } else {
+        engineHold(RIGHT_ENGINE);
+    }
+}
+
+void rotateLeft(uint8_t rotateSpeed) {
+    if (getCarState() == CAR_STATE_OFF) {
+        return;
+    }
+
+    engineClockWiseRotating(RIGHT_ENGINE);
+
+    if (rotateSpeed == ROTATE_SPEED_FAST) {
+        engineAnticlockwiseRotating(LEFT_ENGINE);
+    } else {
+        engineHold(LEFT_ENGINE);
+    }
+}
+
+void handleBtnInterrupt(void) {
     toggleCarState();
 }
 
-void fixBtnDebounce(void) {
-    for (uint16_t i = 0; i < 50000; i++) {}
-}

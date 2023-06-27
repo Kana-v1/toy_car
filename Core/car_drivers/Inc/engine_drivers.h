@@ -18,11 +18,11 @@
 #define LEFT_ENGINE      0
 #define RIGHT_ENGINE     1
 
-void clockWiseRotating(uint8_t engineSide);
+void engineClockWiseRotating(uint8_t engineSide);
 
-void anticlockwiseRotating(uint8_t engineSide);
+void engineAnticlockwiseRotating(uint8_t engineSide);
 
-void hold(uint8_t engineSide);
+void engineHold(uint8_t engineSide);
 
 void turnOffEngines(void);
 
