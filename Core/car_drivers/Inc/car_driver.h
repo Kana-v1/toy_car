@@ -41,4 +41,6 @@ void rotateLeft(uint8_t rotateSpeed);
 
 void handleBtnInterrupt(void);
 
+void detourObstacle(void);
+
 #endif //TOY_CAR_CAR_DRIVER_H

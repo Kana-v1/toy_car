@@ -108,3 +108,22 @@ void handleBtnInterrupt(void) {
     toggleCarState();
 }
 
+
+void detourObstacle(void) {
+    for (uint32_t i = 0; i < 100000; i++) {
+        moveBack();
+    }
+
+    int whereToTurn = rand() % 2;
+
+    for (uint32_t i = 0; i < 100000; i++) {
+        if (whereToTurn == TURN_LEFT) {
+            rotateLeft(ROTATE_SPEED_NORMAL);
+        } else {
+            rotateRight(ROTATE_SPEED_NORMAL);
+        }
+    }
+
+    moveForward();
+}
+
