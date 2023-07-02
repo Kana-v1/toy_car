@@ -38,6 +38,7 @@
 #define IRQ_NO_EXTI9_5          23
 #define IRQ_NO_EXTI15_10        40
 
+#define IRQ_PRIO_14             14
 #define IRQ_PRIO_15             15
 
 #define LED_PORT        GPIOE
