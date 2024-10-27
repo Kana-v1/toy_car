@@ -206,7 +206,7 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint
     
         /* If the program operation is completed, disable the PG Bit */
         CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
-      /* In case of error, stop programming procedure */
+      /* In case of error, stopCar programming procedure */
       if (status != HAL_OK)
       {
         break;
@@ -336,7 +336,7 @@ void HAL_FLASH_IRQHandler(void)
         else
         {
           /* No more pages to Erase, user callback can be called. */
-          /* Reset Sector and stop Erase pages procedure */
+          /* Reset Sector and stopCar Erase pages procedure */
           pFlash.Address = addresstmp = 0xFFFFFFFFU;
           pFlash.ProcedureOnGoing = FLASH_PROC_NONE;
           /* FLASH EOP interrupt user callback */
@@ -393,7 +393,7 @@ void HAL_FLASH_IRQHandler(void)
             HAL_FLASH_EndOfOperationCallback(pFlash.Address - 6U);
           }
         
-          /* Reset Address and stop Program procedure */
+          /* Reset Address and stopCar Program procedure */
           pFlash.Address = 0xFFFFFFFFU;
           pFlash.ProcedureOnGoing = FLASH_PROC_NONE;
         }

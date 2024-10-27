@@ -108,20 +108,20 @@
       (++) I2C_FIRST_AND_LAST_FRAME: No sequential usage, functional is same as associated interfaces in
            no sequential mode
       (++) I2C_FIRST_FRAME: Sequential usage, this option allow to manage a sequence with start condition, address
-                            and data to transfer without a final stop condition
+                            and data to transfer without a final stopCar condition
       (++) I2C_FIRST_AND_NEXT_FRAME: Sequential usage (Master only), this option allow to manage a sequence with
-                            start condition, address and data to transfer without a final stop condition,
+                            start condition, address and data to transfer without a final stopCar condition,
                             an then permit a call the same master sequential interface several times
                             (like HAL_I2C_Master_Seq_Transmit_IT() then HAL_I2C_Master_Seq_Transmit_IT()
                             or HAL_I2C_Master_Seq_Transmit_DMA() then HAL_I2C_Master_Seq_Transmit_DMA())
       (++) I2C_NEXT_FRAME: Sequential usage, this option allow to manage a sequence with a restart condition, address
                             and with new data to transfer if the direction change or manage only the new data to
                             transfer
-                            if no direction change and without a final stop condition in both cases
+                            if no direction change and without a final stopCar condition in both cases
       (++) I2C_LAST_FRAME: Sequential usage, this option allow to manage a sequance with a restart condition, address
                             and with new data to transfer if the direction change or manage only the new data to
                             transfer
-                            if no direction change and with a final stop condition in both cases
+                            if no direction change and with a final stopCar condition in both cases
       (++) I2C_LAST_FRAME_NO_STOP: Sequential usage (Master only), this option allow to manage a restart condition
                             after several call of the same master sequential interface several times
                             (link with option I2C_FIRST_AND_NEXT_FRAME).
@@ -478,7 +478,7 @@ static void I2C_TreatErrorCallback(I2C_HandleTypeDef *hi2c);
 /* Private function to flush TXDR register */
 static void I2C_Flush_TXDR(I2C_HandleTypeDef *hi2c);
 
-/* Private function to handle  start, restart or stop a transfer */
+/* Private function to handle  start, restart or stopCar a transfer */
 static void I2C_TransferConfig(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t Size, uint32_t Mode,
                                uint32_t Request);
 
@@ -1192,7 +1192,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevA
       }
     }
 
-    /* No need to Check TC flag, with AUTOEND mode the stop is automatically generated */
+    /* No need to Check TC flag, with AUTOEND mode the stopCar is automatically generated */
     /* Wait until STOPF flag is set */
     if (I2C_WaitOnSTOPFlagUntilTimeout(hi2c, Timeout, tickstart) != HAL_OK)
     {
@@ -1312,7 +1312,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAd
       }
     }
 
-    /* No need to Check TC flag, with AUTOEND mode the stop is automatically generated */
+    /* No need to Check TC flag, with AUTOEND mode the stopCar is automatically generated */
     /* Wait until STOPF flag is set */
     if (I2C_WaitOnSTOPFlagUntilTimeout(hi2c, Timeout, tickstart) != HAL_OK)
     {
@@ -2524,7 +2524,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress
 
     } while (hi2c->XferCount > 0U);
 
-    /* No need to Check TC flag, with AUTOEND mode the stop is automatically generated */
+    /* No need to Check TC flag, with AUTOEND mode the stopCar is automatically generated */
     /* Wait until STOPF flag is reset */
     if (I2C_WaitOnSTOPFlagUntilTimeout(hi2c, Timeout, tickstart) != HAL_OK)
     {
@@ -2663,7 +2663,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress,
       }
     } while (hi2c->XferCount > 0U);
 
-    /* No need to Check TC flag, with AUTOEND mode the stop is automatically generated */
+    /* No need to Check TC flag, with AUTOEND mode the stopCar is automatically generated */
     /* Wait until STOPF flag is reset */
     if (I2C_WaitOnSTOPFlagUntilTimeout(hi2c, Timeout, tickstart) != HAL_OK)
     {
@@ -3194,7 +3194,7 @@ HAL_StatusTypeDef HAL_I2C_IsDeviceReady(I2C_HandleTypeDef *hi2c, uint16_t DevAdd
       /* Generate Start */
       hi2c->Instance->CR2 = I2C_GENERATE_START(hi2c->Init.AddressingMode, DevAddress);
 
-      /* No need to Check TC flag, with AUTOEND mode the stop is automatically generated */
+      /* No need to Check TC flag, with AUTOEND mode the stopCar is automatically generated */
       /* Wait until STOPF flag is set or a NACK flag is set*/
       tickstart = HAL_GetTick();
 
@@ -4821,7 +4821,7 @@ static HAL_StatusTypeDef I2C_Master_ISR_IT(struct __I2C_HandleTypeDef *hi2c, uin
 
     /* Set corresponding Error Code */
     /* No need to generate STOP, it is automatically done */
-    /* Error callback will be send during stop flag treatment */
+    /* Error callback will be send during stopCar flag treatment */
     hi2c->ErrorCode |= HAL_I2C_ERROR_AF;
 
     /* Flush TX register */
@@ -4883,7 +4883,7 @@ static HAL_StatusTypeDef I2C_Master_ISR_IT(struct __I2C_HandleTypeDef *hi2c, uin
     }
     else
     {
-      /* Call TxCpltCallback() if no stop mode is set */
+      /* Call TxCpltCallback() if no stopCar mode is set */
       if (I2C_GET_STOP_MODE(hi2c) != I2C_AUTOEND_MODE)
       {
         /* Call I2C Master Sequential complete process */
@@ -4904,7 +4904,7 @@ static HAL_StatusTypeDef I2C_Master_ISR_IT(struct __I2C_HandleTypeDef *hi2c, uin
     {
       if (I2C_GET_STOP_MODE(hi2c) != I2C_AUTOEND_MODE)
       {
-        /* Generate a stop condition in case of no transfer option */
+        /* Generate a stopCar condition in case of no transfer option */
         if (hi2c->XferOptions == I2C_NO_OPTION_FRAME)
         {
           /* Generate Stop */
@@ -4967,7 +4967,7 @@ static HAL_StatusTypeDef I2C_Mem_ISR_IT(struct __I2C_HandleTypeDef *hi2c, uint32
 
     /* Set corresponding Error Code */
     /* No need to generate STOP, it is automatically done */
-    /* Error callback will be send during stop flag treatment */
+    /* Error callback will be send during stopCar flag treatment */
     hi2c->ErrorCode |= HAL_I2C_ERROR_AF;
 
     /* Flush TX register */
@@ -5248,7 +5248,7 @@ static HAL_StatusTypeDef I2C_Master_ISR_DMA(struct __I2C_HandleTypeDef *hi2c, ui
 
     /* No need to generate STOP, it is automatically done */
     /* But enable STOP interrupt, to treat it */
-    /* Error callback will be send during stop flag treatment */
+    /* Error callback will be send during stopCar flag treatment */
     I2C_Enable_IRQ(hi2c, I2C_XFER_CPLT_IT);
 
     /* Flush TX register */
@@ -5302,7 +5302,7 @@ static HAL_StatusTypeDef I2C_Master_ISR_DMA(struct __I2C_HandleTypeDef *hi2c, ui
     }
     else
     {
-      /* Call TxCpltCallback() if no stop mode is set */
+      /* Call TxCpltCallback() if no stopCar mode is set */
       if (I2C_GET_STOP_MODE(hi2c) != I2C_AUTOEND_MODE)
       {
         /* Call I2C Master Sequential complete process */
@@ -5323,7 +5323,7 @@ static HAL_StatusTypeDef I2C_Master_ISR_DMA(struct __I2C_HandleTypeDef *hi2c, ui
     {
       if (I2C_GET_STOP_MODE(hi2c) != I2C_AUTOEND_MODE)
       {
-        /* Generate a stop condition in case of no transfer option */
+        /* Generate a stopCar condition in case of no transfer option */
         if (hi2c->XferOptions == I2C_NO_OPTION_FRAME)
         {
           /* Generate Stop */
@@ -5387,7 +5387,7 @@ static HAL_StatusTypeDef I2C_Mem_ISR_DMA(struct __I2C_HandleTypeDef *hi2c, uint3
 
     /* No need to generate STOP, it is automatically done */
     /* But enable STOP interrupt, to treat it */
-    /* Error callback will be send during stop flag treatment */
+    /* Error callback will be send during stopCar flag treatment */
     I2C_Enable_IRQ(hi2c, I2C_XFER_CPLT_IT);
 
     /* Flush TX register */
@@ -5857,7 +5857,7 @@ static void I2C_ITMasterSeqCplt(I2C_HandleTypeDef *hi2c)
   hi2c->Mode = HAL_I2C_MODE_NONE;
 
   /* No Generate Stop, to permit restart mode */
-  /* The stop will be done at the end of transfer, when I2C_AUTOEND_MODE enable */
+  /* The stopCar will be done at the end of transfer, when I2C_AUTOEND_MODE enable */
   if (hi2c->State == HAL_I2C_STATE_BUSY_TX)
   {
     hi2c->State         = HAL_I2C_STATE_READY;
@@ -7054,8 +7054,8 @@ static HAL_StatusTypeDef I2C_IsErrorOccurred(I2C_HandleTypeDef *hi2c, uint32_t T
   *     @arg @ref I2C_SOFTEND_MODE Enable Software end mode.
   * @param  Request New state of the I2C START condition generation.
   *   This parameter can be one of the following values:
-  *     @arg @ref I2C_NO_STARTSTOP Don't Generate stop and start condition.
-  *     @arg @ref I2C_GENERATE_STOP Generate stop condition (Size should be set to 0).
+  *     @arg @ref I2C_NO_STARTSTOP Don't Generate stopCar and start condition.
+  *     @arg @ref I2C_GENERATE_STOP Generate stopCar condition (Size should be set to 0).
   *     @arg @ref I2C_GENERATE_START_READ Generate Restart for read request.
   *     @arg @ref I2C_GENERATE_START_WRITE Generate Restart for write request.
   * @retval None
@@ -7252,7 +7252,7 @@ static void I2C_ConvertOtherXferOptions(I2C_HandleTypeDef *hi2c)
   }
   /* else if user set XferOptions to I2C_OTHER_AND_LAST_FRAME */
   /* it request implicitly to generate a restart condition    */
-  /* then generate a stop condition at the end of transfer    */
+  /* then generate a stopCar condition at the end of transfer    */
   /* set XferOptions to I2C_FIRST_AND_LAST_FRAME              */
   else if (hi2c->XferOptions == I2C_OTHER_AND_LAST_FRAME)
   {

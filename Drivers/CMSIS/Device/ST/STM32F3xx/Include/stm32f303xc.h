@@ -1030,10 +1030,10 @@ typedef struct
 #define ADC_CR_JADSTART                ADC_CR_JADSTART_Msk                     /*!< ADC group injected conversion start */
 #define ADC_CR_ADSTP_Pos               (4U)                                    
 #define ADC_CR_ADSTP_Msk               (0x1UL << ADC_CR_ADSTP_Pos)              /*!< 0x00000010 */
-#define ADC_CR_ADSTP                   ADC_CR_ADSTP_Msk                        /*!< ADC group regular conversion stop */
+#define ADC_CR_ADSTP                   ADC_CR_ADSTP_Msk                        /*!< ADC group regular conversion stopCar */
 #define ADC_CR_JADSTP_Pos              (5U)                                    
 #define ADC_CR_JADSTP_Msk              (0x1UL << ADC_CR_JADSTP_Pos)             /*!< 0x00000020 */
-#define ADC_CR_JADSTP                  ADC_CR_JADSTP_Msk                       /*!< ADC group injected conversion stop */
+#define ADC_CR_JADSTP                  ADC_CR_JADSTP_Msk                       /*!< ADC group injected conversion stopCar */
 #define ADC_CR_ADVREGEN_Pos            (28U)                                   
 #define ADC_CR_ADVREGEN_Msk            (0x3UL << ADC_CR_ADVREGEN_Pos)           /*!< 0x30000000 */
 #define ADC_CR_ADVREGEN                ADC_CR_ADVREGEN_Msk                     /*!< ADC voltage regulator enable */
@@ -12631,7 +12631,7 @@ typedef struct
 #define USART_ISR_RWU                 USART_ISR_RWU_Msk                        /*!< Receive Wake Up from mute mode Flag */
 #define USART_ISR_WUF_Pos             (20U)                                    
 #define USART_ISR_WUF_Msk             (0x1UL << USART_ISR_WUF_Pos)              /*!< 0x00100000 */
-#define USART_ISR_WUF                 USART_ISR_WUF_Msk                        /*!< Wake Up from stop mode Flag */
+#define USART_ISR_WUF                 USART_ISR_WUF_Msk                        /*!< Wake Up from stopCar mode Flag */
 #define USART_ISR_TEACK_Pos           (21U)                                    
 #define USART_ISR_TEACK_Msk           (0x1UL << USART_ISR_TEACK_Pos)            /*!< 0x00200000 */
 #define USART_ISR_TEACK               USART_ISR_TEACK_Msk                      /*!< Transmit Enable Acknowledge Flag */
@@ -12675,7 +12675,7 @@ typedef struct
 #define USART_ICR_CMCF                USART_ICR_CMCF_Msk                       /*!< Character Match Clear Flag */
 #define USART_ICR_WUCF_Pos            (20U)                                    
 #define USART_ICR_WUCF_Msk            (0x1UL << USART_ICR_WUCF_Pos)             /*!< 0x00100000 */
-#define USART_ICR_WUCF                USART_ICR_WUCF_Msk                       /*!< Wake Up from stop mode Clear Flag */
+#define USART_ICR_WUCF                USART_ICR_WUCF_Msk                       /*!< Wake Up from stopCar mode Clear Flag */
 
 /*******************  Bit definition for USART_RDR register  ******************/
 #define USART_RDR_RDR_Pos             (0U)                                     
@@ -12970,7 +12970,7 @@ typedef struct
 #define IS_I2C_ALL_INSTANCE(INSTANCE) (((INSTANCE) == I2C1) || \
                                        ((INSTANCE) == I2C2))
 
-/****************** I2C Instances : wakeup capability from stop modes *********/
+/****************** I2C Instances : wakeup capability from stopCar modes *********/
 #define IS_I2C_WAKEUP_FROMSTOP_INSTANCE(INSTANCE) IS_I2C_ALL_INSTANCE(INSTANCE)
 
 /****************************** I2S Instances *********************************/

@@ -21,7 +21,7 @@ void toggleCarState(void) {
     if (getCarState() == CAR_STATE_ON) {
         moveForward();
     } else {
-        stop();
+        stopCar();
     }
 }
 
@@ -72,7 +72,7 @@ void moveBack(void) {
     engineAnticlockwiseRotating(LEFT_ENGINE);
 }
 
-void stop(void) {
+void stopCar(void) {
     turnOffEngines();
 }
 
@@ -107,7 +107,6 @@ void rotateLeft(uint8_t rotateSpeed) {
 void handleBtnInterrupt(void) {
     toggleCarState();
 }
-
 
 void detourObstacle(void) {
     for (uint32_t i = 0; i < 100000; i++) {

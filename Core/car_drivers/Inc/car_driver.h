@@ -33,7 +33,7 @@ void moveForward(void);
 
 void moveBack(void);
 
-void stop(void);
+void stopCar(void);
 
 void rotateRight(uint8_t rotateSpeed);
 
