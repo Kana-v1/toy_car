@@ -39,7 +39,7 @@ typedef struct {
 #define GPIO_SPEED_LOW        0
 #define GPIO_SPEED_MEDIUM     1
 #define GPIO_SPEED_FAST       2
-#define GPIO_SPEED_HiGH       3
+#define GPIO_SPEED_HIGH       3
 
 // @GPIO_PinPuPdControl
 #define GPIO_NO_PUPD    0

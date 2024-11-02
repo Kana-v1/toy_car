@@ -1,6 +1,10 @@
 #include "car_driver.h"
 #include "accelerometer.h"
 #include "navigation_manager.h"
+#include "gyroscope.h"
+#include "spi.h"
+#include "systick.h"
+
 
 
 void fixBtnDebounce(void) {
@@ -20,16 +24,30 @@ void GPIO_InterruptCallback(uint8_t extiLine) {
     }
 }
 
-void testNavManager(void);
-
 uint8_t initPeripherals(void) {
+    uint8_t status;
+
+    SysTick_Init();
+
     I2C_Handle_t i2cHandle;
     i2cHandle.pI2Cx = I2C1;
     I2C_Init(&i2cHandle);
 
-    uint8_t status = Accelerometer_Init();
+    status = Accelerometer_Init();
     if (status != 0) {
-        return status;
+        return 1;
+    }
+
+    SPI_Handle_t hspi;
+    hspi.pSPIx = SPI1;
+    status = SPI_Init(&hspi);
+    if (status != 0) {
+        return 2;
+    }
+
+    status = Gyroscope_Init();
+    if (status != 0) {
+        return 3;
     }
 
     return 0;
@@ -41,22 +59,6 @@ uint8_t main(void) {
     }
 
     testNavManager();
-//    carInit();
-//    moveForward();
-
-    while (1) {}
-    return 0;
-}
-
-void testNavManager() {
-    NavigationManager* manager = createNavigationManager(-1);
-    uint8_t status;
-
     while(1) {
-        status = updatePosition(manager);
-        if (status != 0) {
-            return;
-        }
     }
-
 }

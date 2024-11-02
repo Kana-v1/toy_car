@@ -202,7 +202,7 @@ uint8_t I2C_WriteReg(I2C_Handle_t *pI2CHandle, uint8_t slaveAddr, uint8_t regAdd
 
 uint8_t I2C_ReadReg(I2C_Handle_t *pI2CHandle, uint8_t slaveAddr, uint8_t regAddr, uint8_t *data, uint32_t len) {
     // Send register address
-    uint8_t status = I2C_MasterSendData(pI2CHandle, &regAddr, 1, slaveAddr, 1);
+    uint8_t status = I2C_MasterSendData(pI2CHandle, &regAddr, len, slaveAddr, 1);
     if(status != 0) return status;
 
     // Read data

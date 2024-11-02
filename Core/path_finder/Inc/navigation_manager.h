@@ -8,9 +8,11 @@
 #include "waypoint.h"
 #include "car_driver.h"
 #include "accelerometer.h"
+#include "gyroscope.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include "systick.h"
 
 #define HEADING_THRESHOLD 5    // Degrees of acceptable heading error
 #define INITIAL_WAYPOINTS_CAP 5
@@ -27,6 +29,7 @@ typedef struct {
 typedef struct {
     Position position;
     float heading;
+    uint32_t lastUpdateAt;
 } CarState;
 
 typedef struct {
@@ -54,5 +57,7 @@ void updateNavigation(NavigationManager* manager);
 uint8_t updatePosition(NavigationManager* manager);
 
 bool isNavigationComplete(NavigationManager* manager);
+
+void testNavManager(void);
 
 #endif //TOY_CAR_NAVIGATION_MANAGER_H

@@ -1,66 +1,94 @@
 //
-// Created by kana on 10/27/2024.
+// Created by kana on 10/26/2024.
 //
 
 #include "gyroscope.h"
 
-static I2C_Handle_t i2cHandle;
+static void delay_us(uint32_t us) {
+    for (volatile uint32_t i = 0; i < (us * 8); i++);
+}
+
+static uint8_t Gyroscope_ReadRegister(uint8_t reg) {
+    uint8_t receivedByte;
+
+    delay_us(10);  // Delay before CS low
+    GPIO_WriteToOutputPin(GPIOE, 3, 0);  // CS low
+    delay_us(10);  // Delay after CS low
+
+    SPI_TransmitReceive(SPI1, reg | 0x80);  // Send address with read bit
+    delay_us(10);  // Wait after address
+
+    receivedByte = SPI_TransmitReceive(SPI1, 0x00);  // Read data
+
+    delay_us(10);  // Delay before CS high
+    GPIO_WriteToOutputPin(GPIOE, 3, 1);  // CS high
+    delay_us(10);  // Delay after CS high
+
+    return receivedByte;
+}
+
+
+static void Gyroscope_WriteRegister(uint8_t reg, uint8_t value) {
+    delay_us(10);
+    GPIO_WriteToOutputPin(GPIOE, 3, 0);  // CS low
+    delay_us(10);
+
+    SPI_TransmitReceive(SPI1, reg);  // Send address
+    delay_us(10);
+
+    SPI_TransmitReceive(SPI1, value);  // Send value
+    delay_us(10);
+
+    GPIO_WriteToOutputPin(GPIOE, 3, 1);  // CS high
+    delay_us(10);
+}
 
 uint8_t Gyroscope_Init(void) {
-    // Initialize I2C
-    i2cHandle.pI2Cx = I2C1;
+     // Initialize CS pin
+    GPIO_Handle_t gpio_cs;
+    RCC->AHBENR |= RCC_AHBENR_GPIOEEN;  // Enable GPIOE clock
 
-    // Check device ID
-    uint8_t who_am_i;
-    I2C_ReadReg(&i2cHandle, L3GD20_ADDR, WHO_AM_I, &who_am_i, 1);
-    if (who_am_i != 0xD4) {  // L3GD20 should return 0xD4
-        return 1;  // Device not found
+    gpio_cs.pGPIOx = GPIOE;
+    gpio_cs.GPIO_PinConfig.GPIO_PinNumber = 3;
+    gpio_cs.GPIO_PinConfig.GPIO_PinMode = GPIO_PIN_MODE_OUTPUT;
+    gpio_cs.GPIO_PinConfig.GPIO_PinOPType = GPIO_OUTPUT_TYPE_PUSH_PULL;
+    gpio_cs.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
+    gpio_cs.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_HIGH;
+    GPIO_Init(&gpio_cs);
+
+    GPIO_WriteToOutputPin(GPIOE, 3, 1);  // CS high initially
+    delay_us(100);
+
+    // Verify device ID
+    uint8_t whoami = Gyroscope_ReadRegister(L3GD20_WHO_AM_I);
+    if(whoami != L3GD20_WHO_AM_I_VALUE) {
+        return whoami;
     }
 
-    // Configure CTRL_REG1
-    // ODR = 95Hz (0b10), Cut-off = 25 (0b10), Enable all axes (0b111)
-    uint8_t config = 0x4F;  // 0b01001111
-    I2C_MasterSendData(&i2cHandle, (uint8_t[]) {CTRL_REG1, config}, 2, L3GD20_ADDR, 0);
+    // Configure the gyroscope
+    // Power down first
+    Gyroscope_WriteRegister(L3GD20_CTRL_REG1, 0x00);
+    delay_us(100);
 
-    // Configure CTRL_REG2
-    // High-pass filter normal mode, cut-off frequency = 8Hz
-    config = 0x00;
-    I2C_MasterSendData(&i2cHandle, (uint8_t[]) {CTRL_REG2, config}, 2, L3GD20_ADDR, 0);
+    // Configure registers
+    Gyroscope_WriteRegister(L3GD20_CTRL_REG1, 0x0F);  // Normal mode, all axes enabled
+    delay_us(100);
 
-    // Configure CTRL_REG3
-    // No interrupts
-    config = 0x00;
-    I2C_MasterSendData(&i2cHandle, (uint8_t[]) {CTRL_REG3, config}, 2, L3GD20_ADDR, 0);
-
-    // Configure CTRL_REG4
-    // ±250 dps full scale
-    config = 0x00;
-    I2C_MasterSendData(&i2cHandle, (uint8_t[]) {CTRL_REG4, config}, 2, L3GD20_ADDR, 0);
-
-    // Configure CTRL_REG5
-    // High-pass filter disabled
-    config = 0x00;
-    I2C_MasterSendData(&i2cHandle, (uint8_t[]) {CTRL_REG5, config}, 2, L3GD20_ADDR, 0);
+    Gyroscope_WriteRegister(L3GD20_CTRL_REG4, 0x00);  // 250 dps, normal mode
+    delay_us(100);
 
     return 0;
 }
 
-uint8_t Gyroscope_ReadData(int16_t* x, int16_t* y, int16_t* z) {
-    uint8_t data[6];
+void Gyroscope_ReadData(int16_t* gx, int16_t* gy, int16_t* gz) {
+    uint8_t xl = Gyroscope_ReadRegister(L3GD20_OUT_X_L);
+    uint8_t xh = Gyroscope_ReadRegister(L3GD20_OUT_X_H);
+    uint8_t yl = Gyroscope_ReadRegister(L3GD20_OUT_Y_L);
+    uint8_t yh = Gyroscope_ReadRegister(L3GD20_OUT_Y_H);
+    uint8_t zl = Gyroscope_ReadRegister(L3GD20_OUT_Z_L);
+    uint8_t zh = Gyroscope_ReadRegister(L3GD20_OUT_Z_H);
 
-    // Read all axes data
-    uint8_t reg = OUT_X_L | 0x80;  // Set MSB for auto-increment
-    if (I2C_MasterSendData(&i2cHandle, &reg, 1, L3GD20_ADDR, 1) != 0) {
-        return 1;
-    }
-
-    if (I2C_MasterReceiveData(&i2cHandle, data, 6, L3GD20_ADDR) != 0) {
-        return 2;
-    }
-
-    *x = (int16_t)((data[1] << 8) | data[0]);
-    *y = (int16_t)((data[3] << 8) | data[2]);
-    *z = (int16_t)((data[5] << 8) | data[4]);
-
-    return 0;
+    *gx = (int16_t)(xh << 8 | xl);
+    *gy = (int16_t)(yh << 8 | yl);
+    *gz = (int16_t)(zh << 8 | zl);
 }

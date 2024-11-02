@@ -9,7 +9,9 @@ const float dt = 1.0f;  // 1ms sample time
 
 static void calcVelocity(Position* pos);
 
-static void calcHeading(CarState* state);
+static void calcHeading(CarState* state, uint32_t currentTime);
+
+static uint32_t tick;
 
 // Ensures angle is in the range 0-360 degrees
 static float normalizeAngle(float angle) {
@@ -52,6 +54,7 @@ NavigationManager* createNavigationManager(uint8_t waypointsCap) {
     manager->obstacleDetected = false;
     manager->currentState.position = (Position) {0};
     manager->currentState.heading = 0.0f;
+    manager->currentState.lastUpdateAt = GetTick();
 
     return manager;
 }
@@ -209,8 +212,9 @@ uint8_t updatePosition(NavigationManager* manager) {
     pos.ax = ax;
     pos.ay = ay;
 
+    uint32_t curTick = GetTick();
     calcVelocity(&pos);
-    calcHeading(&manager->currentState);
+    calcHeading(&manager->currentState, curTick);
 
     pos.x += pos.vx * dt;
     pos.y += pos.vy * dt;
@@ -253,10 +257,47 @@ static void calcVelocity(Position* pos) {
     }
 }
 
-static void calcHeading(CarState* state) {
-    state->heading = 0;
+void calcHeading(CarState* state, uint32_t currentTime) {
+    double dt = fabs((currentTime - state->lastUpdateAt) / (double)1000.0f); // convert ms to s
+    if (dt == 0) {
+        return; // no time has passed
+    }
+
+    float gz;
+    int16_t rawX, rawY, rawZ;
+    Gyroscope_ReadData(&rawX, &rawY, &rawZ);
+
+    // Convert to degrees per second (sensitivity = 8.75 mdps/digit)
+    gz = rawZ * 0.00875f;
+
+    // Calculate heading change (angular velocity * time)
+    float deltaHeading = gz * dt;
+
+    state->heading += deltaHeading;
+    // Normalize to 0-360 degrees
+    if (state->heading >= 360.0f) {
+        state->heading -= 360.0f;
+    } else if (state->heading < 0.0f) {
+        state->heading += 360.0f;
+    }
+
+    state->lastUpdateAt = currentTime;
 }
 
 bool isNavigationComplete(NavigationManager* manager) {
     return !manager || !manager->isNavigating;
+}
+
+// TEST NAVIGATION MANAGER
+void testNavManager() {
+    NavigationManager* manager = createNavigationManager(-1);
+    uint8_t status;
+
+    while (1) {
+        status = updatePosition(manager);
+        float volatile heading = manager->currentState.heading;
+        if (status != 0) {
+            return;
+        }
+    }
 }

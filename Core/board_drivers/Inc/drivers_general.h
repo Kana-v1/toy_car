@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "stm32f303xc.h"
 #include "gpio.h"
+#include "stm32f3xx_hal.h"
 
 
 #define GPIOA_PCLK_EN()    (RCC->AHBENR |= (1 << 17))
