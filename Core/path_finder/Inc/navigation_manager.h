@@ -13,10 +13,13 @@
 #include <stdbool.h>
 #include <math.h>
 #include "systick.h"
+#include "calc.h"
 
 #define HEADING_THRESHOLD 5    // Degrees of acceptable heading error
 #define INITIAL_WAYPOINTS_CAP 5
 #define POSITION_THRESHOLD 5
+
+#define ALPHA 0.98  // Complementary filter coefficient
 
 typedef struct {
     float x, y;           // position
@@ -35,6 +38,7 @@ typedef struct {
 
 typedef struct {
     Waypoint* waypoints;
+    PathCalc* pathCalc;
     uint8_t numWaypoints;
     uint8_t waypointsCap;
     uint8_t currentWaypoint;

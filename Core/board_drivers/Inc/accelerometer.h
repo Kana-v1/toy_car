@@ -9,6 +9,7 @@
 
 #include "stm32f303xc.h"
 #include "i2c.h"
+#include <stdlib.h>
 
 // LSM303 is accelerometer
 #define LSM303_ADDR_ACCEL    0x19    // 7-bit address

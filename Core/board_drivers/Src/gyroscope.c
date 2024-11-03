@@ -44,7 +44,7 @@ static void Gyroscope_WriteRegister(uint8_t reg, uint8_t value) {
 }
 
 uint8_t Gyroscope_Init(void) {
-     // Initialize CS pin
+    // Initialize CS pin
     GPIO_Handle_t gpio_cs;
     RCC->AHBENR |= RCC_AHBENR_GPIOEEN;  // Enable GPIOE clock
 
@@ -61,7 +61,7 @@ uint8_t Gyroscope_Init(void) {
 
     // Verify device ID
     uint8_t whoami = Gyroscope_ReadRegister(L3GD20_WHO_AM_I);
-    if(whoami != L3GD20_WHO_AM_I_VALUE) {
+    if (whoami != L3GD20_WHO_AM_I_VALUE) {
         return whoami;
     }
 
@@ -80,7 +80,7 @@ uint8_t Gyroscope_Init(void) {
     return 0;
 }
 
-void Gyroscope_ReadData(int16_t* gx, int16_t* gy, int16_t* gz) {
+void Gyroscope_ReadCookedData(int16_t* gx, int16_t* gy, int16_t* gz, float bias) {
     uint8_t xl = Gyroscope_ReadRegister(L3GD20_OUT_X_L);
     uint8_t xh = Gyroscope_ReadRegister(L3GD20_OUT_X_H);
     uint8_t yl = Gyroscope_ReadRegister(L3GD20_OUT_Y_L);
@@ -88,9 +88,40 @@ void Gyroscope_ReadData(int16_t* gx, int16_t* gy, int16_t* gz) {
     uint8_t zl = Gyroscope_ReadRegister(L3GD20_OUT_Z_L);
     uint8_t zh = Gyroscope_ReadRegister(L3GD20_OUT_Z_H);
 
-    *gx = (int16_t)(xh << 8 | xl);
-    *gy = (int16_t)(yh << 8 | yl);
-    *gz = (int16_t)(zh << 8 | zl);
+    *gx = (int16_t) (xh << 8 | xl);
+    *gy = (int16_t) (yh << 8 | yl);
+    *gz = (int16_t) (zh << 8 | zl);
+
+    // Convert to degrees per second (sensitivity = 8.75 mdps/digit)
+    // Apply calibrated bias correction
+    *gx = *gx * 0.00875f - bias;
+    *gy = *gy * 0.00875f - bias;
+    *gz = *gz * 0.00875f - bias;
+
+    if (*gx < GYRO_THRESHOLD) {
+        *gx = 0;
+    }
+
+    if (*gy < GYRO_THRESHOLD) {
+        *gy = 0;
+    }
+
+    if (*gz < GYRO_THRESHOLD) {
+        *gz = 0;
+    }
+}
+
+void Gyroscope_ReadRawData(int16_t* gx, int16_t* gy, int16_t* gz) {
+    uint8_t xl = Gyroscope_ReadRegister(L3GD20_OUT_X_L);
+    uint8_t xh = Gyroscope_ReadRegister(L3GD20_OUT_X_H);
+    uint8_t yl = Gyroscope_ReadRegister(L3GD20_OUT_Y_L);
+    uint8_t yh = Gyroscope_ReadRegister(L3GD20_OUT_Y_H);
+    uint8_t zl = Gyroscope_ReadRegister(L3GD20_OUT_Z_L);
+    uint8_t zh = Gyroscope_ReadRegister(L3GD20_OUT_Z_H);
+
+    *gx = (int16_t) (xh << 8 | xl);
+    *gy = (int16_t) (yh << 8 | yl);
+    *gz = (int16_t) (zh << 8 | zl);
 }
 
 // Calibrate gyroscope bias by averaging readings when stationary
@@ -98,9 +129,9 @@ float Gyroscope_Calibrate(uint16_t samples) {
     float sum = 0;
 
     // Average multiple readings
-    for(uint16_t i = 0; i < samples; i++) {
+    for (uint16_t i = 0; i < samples; i++) {
         int16_t raw_x, raw_y, raw_z;
-        Gyroscope_ReadData(&raw_x, &raw_y, &raw_z);
+        Gyroscope_ReadRawData(&raw_x, &raw_y, &raw_z);
         sum += raw_z;
         delay_us(10000);  // 10ms between samples
     }

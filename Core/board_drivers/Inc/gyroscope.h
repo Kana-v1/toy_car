@@ -28,8 +28,11 @@
 #define L3GD20_OUT_Z_L           0x2C
 #define L3GD20_OUT_Z_H           0x2D
 
+#define GYRO_THRESHOLD 5
+
 uint8_t Gyroscope_Init(void);
-void Gyroscope_ReadData(int16_t* gx, int16_t* gy, int16_t* gz);
+void Gyroscope_ReadCookedData(int16_t* gx, int16_t* gy, int16_t* gz, float bias);
+void Gyroscope_ReadRawData(int16_t* gx, int16_t* gy, int16_t* gz);
 float Gyroscope_Calibrate(uint16_t samples);
 
 #endif //GYROSCOPE_H
