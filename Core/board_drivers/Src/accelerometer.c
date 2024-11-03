@@ -96,7 +96,7 @@ uint8_t Accelerometer_ReadAccel(int16_t* ax, int16_t* ay, int16_t* az) {
 
 uint8_t Accelerometer_GetAcceleration(float* ax, float* ay, float* az) {
     static int16_t filtered_ax = 0, filtered_ay = 0, filtered_az = 0;
-    const int16_t THRESHOLD = 20;  // Adjust based on raw value noise
+    const int16_t THRESHOLD = 30;  // Adjust based on raw value noise
 
     int16_t raw_ax, raw_ay, raw_az;
 

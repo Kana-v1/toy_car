@@ -176,7 +176,7 @@ void updateNavigation(NavigationManager* manager) {
         return;
     }
 
-    if (updatePosition(manager) != 0) {
+    if (updatePosition(manager, GetTick()) != 0) {
         return;
     }
 
@@ -216,7 +216,7 @@ void updateNavigation(NavigationManager* manager) {
     moveForward();
 }
 
-uint8_t updatePositionV2(NavigationManager* manager, uint32_t currentTime) {
+uint8_t updatePosition(NavigationManager* manager, uint32_t currentTime) {
     double dt = fabs((currentTime - manager->currentState.lastUpdateAt) / (double) 1000.0f); // convert ms to s
     SensorData sensorData = {0};
     readSensorData(&sensorData, manager->currentState.headingBias);
@@ -224,99 +224,6 @@ uint8_t updatePositionV2(NavigationManager* manager, uint32_t currentTime) {
     CalcPosition(manager->pathCalc, sensorData, dt);
 
     return 0;
-}
-
-uint8_t updatePosition(NavigationManager* manager) {
-//    float ax, ay, az;
-//    const float noise_threshold = 0.1f;  // m/s²
-//
-//    if (Accelerometer_GetAcceleration(&ax, &ay, &az) != 0) {
-//        return 1;
-//    }
-//
-//    if (ax < noise_threshold && ax > -noise_threshold) {
-//        ax = 0;
-//    }
-//
-//    if (ay < noise_threshold && ay > -noise_threshold) {
-//        ay = 0;
-//    }
-//
-//    Position pos = manager->currentState.position;
-//
-//    pos.prev_ax = pos.ax;
-//    pos.prev_ay = pos.ay;
-//
-//    pos.ax = ax;
-//    pos.ay = ay;
-//
-//    uint32_t curTick = GetTick();
-//    calcVelocity(&pos);
-//    calcHeading(&manager->currentState, curTick);
-//
-//    pos.x += pos.vx * dt;
-//    pos.y += pos.vy * dt;
-//
-//    manager->currentState.position = pos;
-
-    return 0;
-}
-
-// calculating velocity just with accelerometer is quite tough
-static void calcVelocity(Position* pos) {
-//    const float ACCEL_THRESHOLD = 0.5f;    // m/s²
-//    const float VELOCITY_THRESHOLD = 0.1f;   // m/s
-//    const uint32_t STATIONARY_TIME = 50;    // samples
-//
-//    // calculate total acceleration magnitude
-//    float accel_magnitude = sqrtf(powf(pos->ax, 2) + powf(pos->ay, 2));
-//
-//    if (accel_magnitude > ACCEL_THRESHOLD) {
-//        // We're moving
-//        pos->stationary_count = 0;
-//
-//        // Update velocities
-//        pos->vx = pos->ax * dt;
-//        pos->vy = pos->ay * dt;
-//    }
-//
-//    pos->stationary_count++;
-//    if (pos->stationary_count > STATIONARY_TIME) {
-//        // We've been "stationary" for a while
-//        // Gradually reduce velocity
-//        pos->vx *= 0.95f;
-//        pos->vy *= 0.95f;
-//    }
-//
-//    //If velocity is very small, zero it
-//    if (fabs(pos->vx) < VELOCITY_THRESHOLD && fabs(pos->vy) < VELOCITY_THRESHOLD) {
-//        pos->vx = 0;
-//        pos->vy = 0;
-//    }
-}
-
-void calcHeading(CarState* state, uint32_t currentTime) {
-//    double dt = fabs((currentTime - state->lastUpdateAt) / (double) 1000.0f); // convert ms to s
-//    if (dt == 0) {
-//        return; // no time has passed
-//    }
-//
-//    float gz;
-//    int16_t rawX, rawY, rawZ;
-//    Gyroscope_ReadCookedData(&rawX, &rawY, &rawZ, 0);
-//
-//    // Calculate heading change (angular velocity * time)
-//    float deltaHeading = gz * dt;
-//
-//    state->heading += deltaHeading;
-//    // Normalize to 0-360 degrees
-//    if (state->heading >= 360.0f) {
-//        state->heading -= 360.0f;
-//    } else if (state->heading < 0.0f) {
-//        state->heading += 360.0f;
-//    }
-//
-//    state->lastUpdateAt = currentTime;
 }
 
 bool isNavigationComplete(NavigationManager* manager) {
@@ -329,7 +236,7 @@ void testNavManager() {
     uint8_t status;
 
     while (1) {
-        status = updatePositionV2(manager, GetTick());
+        status = updatePosition(manager, GetTick());
         float volatile heading = manager->currentState.heading;
         if (status != 0) {
             return;

@@ -15,6 +15,7 @@
 typedef struct {
     float pos_x, pos_y;
     float vel_x, vel_y;
+    float heading;
 } PositionData;
 
 typedef struct {

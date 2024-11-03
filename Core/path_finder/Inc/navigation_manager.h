@@ -59,7 +59,7 @@ void stopNavigation(NavigationManager* manager);
 
 void updateNavigation(NavigationManager* manager);
 
-uint8_t updatePosition(NavigationManager* manager);
+uint8_t updatePosition(NavigationManager* manager, uint32_t currentTime);
 
 bool isNavigationComplete(NavigationManager* manager);
 

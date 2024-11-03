@@ -17,3 +17,4 @@ void EXTI15_10_IRQHandler(void) {
 }
 
 __attribute__((weak)) void GPIO_InterruptCallback(uint8_t extiLine) {}
+
