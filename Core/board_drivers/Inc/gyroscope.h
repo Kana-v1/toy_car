@@ -30,5 +30,6 @@
 
 uint8_t Gyroscope_Init(void);
 void Gyroscope_ReadData(int16_t* gx, int16_t* gy, int16_t* gz);
+float Gyroscope_Calibrate(uint16_t samples);
 
 #endif //GYROSCOPE_H

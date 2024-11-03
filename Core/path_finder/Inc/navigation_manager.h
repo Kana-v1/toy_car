@@ -29,6 +29,7 @@ typedef struct {
 typedef struct {
     Position position;
     float heading;
+    float headingBias;
     uint32_t lastUpdateAt;
 } CarState;
 

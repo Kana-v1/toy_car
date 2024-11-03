@@ -55,6 +55,7 @@ NavigationManager* createNavigationManager(uint8_t waypointsCap) {
     manager->currentState.position = (Position) {0};
     manager->currentState.heading = 0.0f;
     manager->currentState.lastUpdateAt = GetTick();
+    manager->currentState.headingBias = Gyroscope_Calibrate(100);
 
     return manager;
 }
@@ -258,7 +259,7 @@ static void calcVelocity(Position* pos) {
 }
 
 void calcHeading(CarState* state, uint32_t currentTime) {
-    double dt = fabs((currentTime - state->lastUpdateAt) / (double)1000.0f); // convert ms to s
+    double dt = fabs((currentTime - state->lastUpdateAt) / (double) 1000.0f); // convert ms to s
     if (dt == 0) {
         return; // no time has passed
     }
@@ -268,7 +269,8 @@ void calcHeading(CarState* state, uint32_t currentTime) {
     Gyroscope_ReadData(&rawX, &rawY, &rawZ);
 
     // Convert to degrees per second (sensitivity = 8.75 mdps/digit)
-    gz = rawZ * 0.00875f;
+    // Apply calibrated bias correction
+    gz = rawZ * 0.00875f - state->headingBias;
 
     // Calculate heading change (angular velocity * time)
     float deltaHeading = gz * dt;

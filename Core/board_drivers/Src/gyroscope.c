@@ -92,3 +92,19 @@ void Gyroscope_ReadData(int16_t* gx, int16_t* gy, int16_t* gz) {
     *gy = (int16_t)(yh << 8 | yl);
     *gz = (int16_t)(zh << 8 | zl);
 }
+
+// Calibrate gyroscope bias by averaging readings when stationary
+float Gyroscope_Calibrate(uint16_t samples) {
+    float sum = 0;
+
+    // Average multiple readings
+    for(uint16_t i = 0; i < samples; i++) {
+        int16_t raw_x, raw_y, raw_z;
+        Gyroscope_ReadData(&raw_x, &raw_y, &raw_z);
+        sum += raw_z;
+        delay_us(10000);  // 10ms between samples
+    }
+
+    // Calculate average bias
+    return (sum / samples) * 0.00875f;
+}
