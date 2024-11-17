@@ -5,10 +5,6 @@
 #include <malloc.h>
 #include "navigation_manager.h"
 
-static void calcVelocity(Position* pos);
-
-static void calcHeading(CarState* state, uint32_t currentTime);
-
 static uint32_t tick;
 
 // Ensures angle is in the range 0-360 degrees
@@ -29,8 +25,8 @@ static float getAngleDifference(float alpha, float beta) {
     return diff;
 }
 
-static uint8_t readSensorData(SensorData *sensorData, float gyroBias) {
-        float accel_x, accel_y, accel_z;
+static uint8_t readSensorData(SensorData* sensorData, float gyroBias) {
+    float accel_x, accel_y, accel_z;
     int16_t gyro_x, gyro_y, gyro_z;
 
     if (Accelerometer_GetAcceleration(&accel_x, &accel_y, &accel_z) != 0) {
@@ -113,6 +109,15 @@ static bool resizeWaypointsArray(NavigationManager* manager) {
     return true;
 }
 
+static Waypoint convertWaypointToSensorCoordinates(CalibrationValues cal, Waypoint waypoint) {
+    Waypoint sensorPoint;
+
+    sensorPoint.x = (waypoint.x / cal.xScale) + cal.xZero;
+    sensorPoint.y = (waypoint.y / cal.xScale) + cal.yZero;
+
+    return sensorPoint;
+}
+
 bool addWaypoint(NavigationManager* manager, Waypoint waypoint) {
     if (!manager) {
         return false;
@@ -122,7 +127,8 @@ bool addWaypoint(NavigationManager* manager, Waypoint waypoint) {
         resizeWaypointsArray(manager);
     }
 
-    manager->waypoints[manager->numWaypoints++] = waypoint;
+    Waypoint sensorWaypoint = convertWaypointToSensorCoordinates(manager->calibrationValues, waypoint);
+    manager->waypoints[manager->numWaypoints++] = sensorWaypoint;
 
     return true;
 }
@@ -201,19 +207,23 @@ void updateNavigation(NavigationManager* manager) {
     float targetAngle = calculateAngleBetweenPoints(current, target);
     float angleDif = getAngleDifference(manager->currentState.heading, targetAngle);
 
+    if (!carMightChangeDirection()) {
+        return;
+    }
+
     if (fabsf(angleDif) > HEADING_THRESHOLD) {
         if (angleDif > 0) {
-            rotateRight(ROTATE_SPEED_NORMAL);
+            carRotateRight(ROTATE_SPEED_NORMAL);
             return;
         }
 
         if (angleDif < 0) {
-            rotateLeft(ROTATE_SPEED_NORMAL);
+            carRotateLeft(ROTATE_SPEED_NORMAL);
             return;
         }
     }
 
-    moveForward();
+    carMoveForward();
 }
 
 uint8_t updatePosition(NavigationManager* manager, uint32_t currentTime) {
@@ -230,16 +240,95 @@ bool isNavigationComplete(NavigationManager* manager) {
     return !manager || !manager->isNavigating;
 }
 
-// TEST NAVIGATION MANAGER
-void testNavManager() {
-    NavigationManager* manager = createNavigationManager(-1);
-    uint8_t status;
+void moveWithNavigation(NavigationManager* manager) {
+    uint32_t lastUpdateTime = GetTick();
+    const uint32_t UPDATE_INTERVAL_MS = 50;
+    startNavigation(manager);
 
-    while (1) {
-        status = updatePosition(manager, GetTick());
-        float volatile heading = manager->currentState.heading;
-        if (status != 0) {
+    while (!isNavigationComplete(manager)) {
+        uint32_t currentTime = GetTick();
+
+        if (currentTime - lastUpdateTime < UPDATE_INTERVAL_MS) {
+            continue;
+        }
+
+        updateNavigation(manager);
+    }
+}
+
+static void moveForOneSec(NavigationManager* manager, bool forward) {
+    uint8_t status = 0;
+    uint32_t lastUpdateTime = GetTick();
+    const uint32_t UPDATE_INTERVAL_MS = 50;
+    const uint32_t MOVE_TIME_MS = 10000;
+
+    uint32_t initTime = GetTick();
+    if (forward) {
+        carMoveForward();
+    } else {
+        carMoveBack();
+    }
+
+    while (true) {
+        uint32_t currentTime = GetTick();
+        if (currentTime - initTime >= MOVE_TIME_MS) {
+            stopCar();
             return;
         }
+
+        if (currentTime - lastUpdateTime < UPDATE_INTERVAL_MS) {
+            continue;
+        }
+
+        status = updatePosition(manager, currentTime);
+
+        if (status != 0) {
+            stopCar();
+            return;
+        }
+        lastUpdateTime = currentTime;
     }
+}
+
+void calibrateNavigationManager(NavigationManager* manager) {
+    SensorData sensorData = {0};
+    const float KNOWN_DISTANCE = 100.0f;  // known test distance in some virtual units
+
+    struct {
+        float minX, maxX;
+        float minY, maxY;
+        float sumX, sumY;
+    } cal = {0};
+
+    int samplesNum = 3;
+    for (int i = 0; i < samplesNum; i++) {
+        // Forward movement to get Y axis calibration
+        moveForOneSec(manager, true);
+        cal.maxY = fmaxf(cal.maxY, manager->pathCalc->positionData.pos_y);
+        cal.minY = fminf(cal.minY, manager->pathCalc->positionData.pos_y);
+        ResetPathCalc(manager->pathCalc, sensorData);
+
+        HAL_Delay(10000);
+
+        // Backward movement
+        moveForOneSec(manager, false);
+        cal.maxY = fmaxf(cal.maxY, manager->pathCalc->positionData.pos_y);
+        cal.minY = fminf(cal.minY, manager->pathCalc->positionData.pos_y);
+        ResetPathCalc(manager->pathCalc, sensorData);
+    }
+
+    // calculate scaling factors
+    float yRange = cal.maxY - cal.minY;
+    // convert to real (virtual) units. Divide by 2 since we're trying to find a "center"
+    float yZero = (cal.maxY + cal.minY) / 2.0f;
+
+    float xRange = cal.maxX - cal.minX;
+    float xZero = (cal.maxX + cal.minX) / 2.0f;
+
+    manager->calibrationValues.yScale = KNOWN_DISTANCE / (yRange / 2.0f);
+    manager->calibrationValues.yZero = yZero;
+
+    // for X axis (assuming similar scale if no direct X calibration possible)
+    manager->calibrationValues.xScale = KNOWN_DISTANCE / (xRange / 2.0f);;
+    manager->calibrationValues.xZero = xZero;
 }

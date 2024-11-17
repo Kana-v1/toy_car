@@ -4,9 +4,9 @@
 
 #include "calc.h"
 
-#define VELOCITY_THRESHOLD 0.25
+#define VELOCITY_THRESHOLD 0.05
 #define VELOCITY_DECAY 0.95
-#define FILTER_THRESHOLD 0.05  // Adjust based on the noise level of your sensor
+#define FILTER_THRESHOLD 0.05
 
 PathCalc* InitPathCalc(SensorData sensorData) {
     PathCalc* pathCalc = (PathCalc*) malloc(sizeof(PathCalc));

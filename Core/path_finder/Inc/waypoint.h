@@ -10,8 +10,8 @@ typedef struct {
     float y;
 } Waypoint;
 
-static float distanceBetweenWaypoints(Waypoint a, Waypoint b);
+float distanceBetweenWaypoints(Waypoint a, Waypoint b);
 
-static float calculateAngleBetweenPoints(Waypoint a, Waypoint b);
+float calculateAngleBetweenPoints(Waypoint a, Waypoint b);
 
 #endif //TOY_CAR_WAYPOINT_H

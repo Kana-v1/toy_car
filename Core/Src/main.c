@@ -5,7 +5,7 @@
 #include "spi.h"
 #include "systick.h"
 
-
+bool isFirstTime = true;
 
 void fixBtnDebounce(void) {
     for (uint16_t i = 0; i < 50000; i++) {}
@@ -19,8 +19,12 @@ void GPIO_InterruptCallback(uint8_t extiLine) {
             break;
 
         case OBSTACLES_SCANNER_PIN:
-            detourObstacle();
-            break;
+            if (isFirstTime) {
+                isFirstTime = false;
+                return;
+            }
+
+            carDetourObstacle();
     }
 }
 
@@ -57,8 +61,22 @@ uint8_t main(void) {
     if (initPeripherals() != 0) {
         return 1;
     }
+    carInit();
+    NavigationManager* manager = createNavigationManager(2);
+    calibrateNavigationManager(manager);
+    Waypoint pointA = {
+            .x =  0,
+            .y =  0,
+    };
+    Waypoint pointB = {
+            .x =  100,
+            .y =  100,
+    };
+    addWaypoint(manager, pointA);
+    addWaypoint(manager, pointB);
 
-    testNavManager();
-    while(1) {
+    moveWithNavigation(manager);
+
+    while (1) {
     }
 }

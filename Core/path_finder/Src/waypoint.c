@@ -4,14 +4,14 @@
 #include "waypoint.h"
 #include <math.h>
 
-static float distanceBetweenWaypoints(Waypoint a, Waypoint b) {
+float distanceBetweenWaypoints(Waypoint a, Waypoint b) {
     float deltaX = b.x - a.x;
     float deltaY = b.y - a.y;
 
     return sqrtf(powf(deltaX, 2) + powf(deltaY, 2));
 }
 
-static float calculateAngleBetweenPoints(Waypoint a, Waypoint b) {
+float calculateAngleBetweenPoints(Waypoint a, Waypoint b) {
     float deltaX = b.x - a.x;
     float deltaY = b.y - a.y;
 

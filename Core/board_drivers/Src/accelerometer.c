@@ -11,9 +11,9 @@
 static I2C_Handle_t i2cHandle;
 
 typedef struct {
-    int16_t offset_x;
-    int16_t offset_y;
-    int16_t offset_z;
+    int16_t zero_x;
+    int16_t zero_y;
+    int16_t zero_z;
 } Accel_Calibration_t;
 
 static Accel_Calibration_t calibration = {0};
@@ -40,16 +40,19 @@ static void calibrateAccel(void) {
     int16_t avg_y = (int16_t) (sum_y / SAMPLES_PER_CALIBRATION);
     int16_t avg_z = (int16_t) (sum_z / SAMPLES_PER_CALIBRATION);
 
-    calibration.offset_x = abs(avg_x);
-    calibration.offset_y = abs(avg_y);
-    calibration.offset_z = abs(avg_z);
+    calibration.zero_x = abs(avg_x);
+    calibration.zero_y = abs(avg_y);
+    calibration.zero_z = abs(avg_z);
 }
-
 
 static void applyLowPassFilter(int16_t* value, int16_t new_value) {
     // Alpha = 0.1 in fixed point (0.1 * 256 = 26)
     const int16_t ALPHA = 26;
     *value = (ALPHA * new_value + (256 - ALPHA) * (*value)) / 256;
+}
+
+static int16_t applyCalibrationValue(int16_t value, int16_t logicZeroValue) {
+    return value - logicZeroValue;
 }
 
 uint8_t Accelerometer_Init(void) {
@@ -96,7 +99,7 @@ uint8_t Accelerometer_ReadAccel(int16_t* ax, int16_t* ay, int16_t* az) {
 
 uint8_t Accelerometer_GetAcceleration(float* ax, float* ay, float* az) {
     static int16_t filtered_ax = 0, filtered_ay = 0, filtered_az = 0;
-    const int16_t THRESHOLD = 30;  // Adjust based on raw value noise
+    const int16_t THRESHOLD = 5;
 
     int16_t raw_ax, raw_ay, raw_az;
 
@@ -105,21 +108,9 @@ uint8_t Accelerometer_GetAcceleration(float* ax, float* ay, float* az) {
         return 1;
     }
 
-    int sign = 1;
-
-    if (raw_ax > 0) {
-        sign = -1;
-    }
-    raw_ax += sign * calibration.offset_x;
-    if (raw_ay > 0) {
-        sign = -1;
-    }
-    raw_ay += sign * calibration.offset_y;
-    if (raw_az > 0) {
-        sign = -1;
-    }
-    raw_az += sign * calibration.offset_z;
-
+    raw_ax = applyCalibrationValue(raw_ax, calibration.zero_x);
+    raw_ay = applyCalibrationValue(raw_ay, calibration.zero_y);
+    raw_az = applyCalibrationValue(raw_az, calibration.zero_z);
 
     applyLowPassFilter(&filtered_ax, raw_ax);
     applyLowPassFilter(&filtered_ay, raw_ay);
