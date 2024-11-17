@@ -220,7 +220,7 @@ HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp(I2C_HandleTypeDef *hi2c)
     /* Disable the selected I2C peripheral */
     __HAL_I2C_DISABLE(hi2c);
 
-    /* Enable wakeup from stop mode */
+    /* Enable wakeup from stopCar mode */
     hi2c->Instance->CR1 |= I2C_CR1_WUPEN;
 
     __HAL_I2C_ENABLE(hi2c);
@@ -259,7 +259,7 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp(I2C_HandleTypeDef *hi2c)
     /* Disable the selected I2C peripheral */
     __HAL_I2C_DISABLE(hi2c);
 
-    /* Enable wakeup from stop mode */
+    /* Enable wakeup from stopCar mode */
     hi2c->Instance->CR1 &= ~(I2C_CR1_WUPEN);
 
     __HAL_I2C_ENABLE(hi2c);

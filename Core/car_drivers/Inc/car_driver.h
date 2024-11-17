@@ -8,6 +8,7 @@
 #include "drivers_general.h"
 #include "engine_drivers.h"
 #include "obstacles_sensor_driver.h"
+#include <stdbool.h>
 
 #define CAR_STATE_ON    1
 #define CAR_STATE_OFF   0
@@ -29,18 +30,20 @@ void toggleCarState(void);
 
 void initCarManagementPeripheral(void);
 
-void moveForward(void);
+void carMoveForward(void);
 
-void moveBack(void);
+void carMoveBack(void);
 
-void stop(void);
+void stopCar(void);
 
-void rotateRight(uint8_t rotateSpeed);
+void carRotateRight(uint8_t rotateSpeed);
 
-void rotateLeft(uint8_t rotateSpeed);
+void carRotateLeft(uint8_t rotateSpeed);
 
 void handleBtnInterrupt(void);
 
-void detourObstacle(void);
+void carDetourObstacle(void);
+
+bool carMightChangeDirection(void);
 
 #endif //TOY_CAR_CAR_DRIVER_H

@@ -60,8 +60,8 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle) {
         uint8_t afrRegisters = 8;
         uint8_t afrRegisterBits = 4;
 
-        uint8_t afrNum = pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunNum / afrRegisters;
-        uint8_t afrOffset = pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunNum % afrRegisters;
+        uint8_t afrNum = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber  / afrRegisters;
+        uint8_t afrOffset = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber  % afrRegisters;
 
         pGPIOHandle->pGPIOx->AFR[afrNum] &= ~(0b1111 << (afrRegisterBits * afrOffset));
         pGPIOHandle->pGPIOx->AFR[afrNum] |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunNum << (afrRegisterBits * afrOffset));

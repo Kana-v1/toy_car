@@ -210,7 +210,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
           
           if (status != HAL_OK)
           {
-            /* In case of error, stop erase procedure and return the faulty address */
+            /* In case of error, stopCar erase procedure and return the faulty address */
             *PageError = address;
             break;
           }

@@ -16,9 +16,6 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-#set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
-set(CMAKE_C_FLAGS_DEBUG "-O1")
-set(CMAKE_CXX_FLAGS_DEBUG "-O1")
 
 # project settings
 project(toy_car C CXX ASM)
@@ -56,7 +53,19 @@ else ()
     add_compile_options(-Og -g)
 endif ()
 
-include_directories(Core/Inc Core/board_drivers/Inc Core/board_drivers/Src Core/car_drivers/Inc Core/car_drivers/Src Drivers/STM32F3xx_HAL_Driver/Inc Drivers/STM32F3xx_HAL_Driver/Inc/Legacy Drivers/CMSIS/Device/ST/STM32F3xx/Include Drivers/CMSIS/Include)
+include_directories(
+        Core/Inc
+        Core/board_drivers/Inc
+        Core/board_drivers/Src
+        Core/car_drivers/Inc
+        Core/car_drivers/Src
+        Core/path_finder/Inc
+        Core/path_finder/Src
+        Drivers/STM32F3xx_HAL_Driver/Inc
+        Drivers/STM32F3xx_HAL_Driver/Inc/Legacy
+        Drivers/CMSIS/Device/ST/STM32F3xx/Include
+        Drivers/CMSIS/Include
+)
 
 add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32F303xC)
 

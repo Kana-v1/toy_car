@@ -4,6 +4,8 @@
 
 #include "car_driver.h"
 
+bool MIGHT_CHANGE_DIRECTION = true;
+
 void carInit(void) {
     initCarManagementPeripheral();
     initObstaclesSensor();
@@ -18,10 +20,11 @@ void toggleCarState(void) {
     GPIO_ToggleOutputPin(LED_PORT, GREEN_LED_PIN);
     GPIO_ToggleOutputPin(LED_PORT, RED_LED_PIN);
 
-    if (getCarState() == CAR_STATE_ON) {
-        moveForward();
+    uint8_t newCarState = getCarState();
+    if (newCarState == CAR_STATE_ON) {
+        carMoveForward();
     } else {
-        stop();
+        stopCar();
     }
 }
 
@@ -54,7 +57,7 @@ void initCarManagementPeripheral(void) {
 }
 
 
-void moveForward(void) {
+void carMoveForward(void) {
     if (getCarState() == CAR_STATE_OFF) {
         return;
     }
@@ -63,7 +66,7 @@ void moveForward(void) {
     engineClockWiseRotating(LEFT_ENGINE);
 }
 
-void moveBack(void) {
+void carMoveBack(void) {
     if (getCarState() == CAR_STATE_OFF) {
         return;
     }
@@ -72,11 +75,11 @@ void moveBack(void) {
     engineAnticlockwiseRotating(LEFT_ENGINE);
 }
 
-void stop(void) {
+void stopCar(void) {
     turnOffEngines();
 }
 
-void rotateRight(uint8_t rotateSpeed) {
+void carRotateRight(uint8_t rotateSpeed) {
     if (getCarState() == CAR_STATE_OFF) {
         return;
     }
@@ -90,7 +93,7 @@ void rotateRight(uint8_t rotateSpeed) {
     }
 }
 
-void rotateLeft(uint8_t rotateSpeed) {
+void carRotateLeft(uint8_t rotateSpeed) {
     if (getCarState() == CAR_STATE_OFF) {
         return;
     }
@@ -108,22 +111,27 @@ void handleBtnInterrupt(void) {
     toggleCarState();
 }
 
-
-void detourObstacle(void) {
+void carDetourObstacle(void) {
+    MIGHT_CHANGE_DIRECTION = false;
     for (uint32_t i = 0; i < 100000; i++) {
-        moveBack();
+        carMoveBack();
     }
 
     int whereToTurn = rand() % 2;
 
     for (uint32_t i = 0; i < 100000; i++) {
         if (whereToTurn == TURN_LEFT) {
-            rotateLeft(ROTATE_SPEED_NORMAL);
+            carRotateLeft(ROTATE_SPEED_NORMAL);
         } else {
-            rotateRight(ROTATE_SPEED_NORMAL);
+            carRotateRight(ROTATE_SPEED_NORMAL);
         }
     }
 
-    moveForward();
+    carMoveForward();
+    MIGHT_CHANGE_DIRECTION = true;
+}
+
+bool carMightChangeDirection(void) {
+    return MIGHT_CHANGE_DIRECTION;
 }
 
