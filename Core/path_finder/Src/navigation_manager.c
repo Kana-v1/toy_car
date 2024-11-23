@@ -7,6 +7,8 @@
 
 static uint32_t tick;
 
+const float realDistanceTowardsObstacle = 15.0f; // 15cm
+
 // Ensures angle is in the range 0-360 degrees
 static float normalizeAngle(float angle) {
     while (angle > 360.0f) angle -= 360.0f;
@@ -173,7 +175,7 @@ void startNavigation(NavigationManager* manager) {
 void stopNavigation(NavigationManager* manager) {
     if (manager && manager->isNavigating) {
         manager->isNavigating = false;
-        stopCar();
+        carStop();
     }
 }
 
@@ -272,7 +274,7 @@ static void moveForOneSec(NavigationManager* manager, bool forward) {
     while (true) {
         uint32_t currentTime = GetTick();
         if (currentTime - initTime >= MOVE_TIME_MS) {
-            stopCar();
+            carStop();
             return;
         }
 
@@ -283,7 +285,7 @@ static void moveForOneSec(NavigationManager* manager, bool forward) {
         status = updatePosition(manager, currentTime);
 
         if (status != 0) {
-            stopCar();
+            carStop();
             return;
         }
         lastUpdateTime = currentTime;
@@ -292,7 +294,7 @@ static void moveForOneSec(NavigationManager* manager, bool forward) {
 
 void calibrateNavigationManager(NavigationManager* manager) {
     SensorData sensorData = {0};
-    const float KNOWN_DISTANCE = 100.0f;  // known test distance in some virtual units
+    const float KNOWN_DISTANCE = 5.0f;
 
     struct {
         float minX, maxX;
@@ -319,7 +321,7 @@ void calibrateNavigationManager(NavigationManager* manager) {
 
     // calculate scaling factors
     float yRange = cal.maxY - cal.minY;
-    // convert to real (virtual) units. Divide by 2 since we're trying to find a "center"
+    // convert to real units. Divide by 2 since we're trying to find a "center"
     float yZero = (cal.maxY + cal.minY) / 2.0f;
 
     float xRange = cal.maxX - cal.minX;
@@ -328,7 +330,8 @@ void calibrateNavigationManager(NavigationManager* manager) {
     manager->calibrationValues.yScale = KNOWN_DISTANCE / (yRange / 2.0f);
     manager->calibrationValues.yZero = yZero;
 
-    // for X axis (assuming similar scale if no direct X calibration possible)
     manager->calibrationValues.xScale = KNOWN_DISTANCE / (xRange / 2.0f);;
     manager->calibrationValues.xZero = xZero;
+
+    manager->calibrationValues.distanceTowardsObstacle = manager->calibrationValues.yZero * realDistanceTowardsObstacle;
 }

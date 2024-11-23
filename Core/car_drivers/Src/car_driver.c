@@ -24,7 +24,7 @@ void toggleCarState(void) {
     if (newCarState == CAR_STATE_ON) {
         carMoveForward();
     } else {
-        stopCar();
+        carStop();
     }
 }
 
@@ -75,7 +75,7 @@ void carMoveBack(void) {
     engineAnticlockwiseRotating(LEFT_ENGINE);
 }
 
-void stopCar(void) {
+void carStop(void) {
     turnOffEngines();
 }
 
@@ -129,6 +129,28 @@ void carDetourObstacle(void) {
 
     carMoveForward();
     MIGHT_CHANGE_DIRECTION = true;
+}
+
+void carRotate(float radians) {
+    MIGHT_CHANGE_DIRECTION = false;
+
+    float rotatePerMSDeg = 0.01f;
+    float angleDeg = radians * (float) (180 / M_PI);
+
+    angleDeg = fmodf(angleDeg, 360.0f);
+
+    float angleToRotate;
+
+    if (angleDeg > 180) {
+        angleToRotate = 360 - angleDeg;
+        carRotateLeft(ROTATE_SPEED_NORMAL);
+    } else {
+        angleToRotate = angleDeg;
+        carRotateRight(ROTATE_SPEED_NORMAL);
+    }
+
+    float rotationTime = ceilf(angleToRotate / rotatePerMSDeg);
+    HAL_Delay((uint32_t) rotationTime);
 }
 
 bool carMightChangeDirection(void) {

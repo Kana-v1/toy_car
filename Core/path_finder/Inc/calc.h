@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "waypoint.h"
 
 #define ALPHA 0.98  // Complementary filter coefficient
 #define FILTER_ALPHA 0.5  // Low-pass filter coefficient, adjustable
@@ -29,13 +30,22 @@ typedef struct {
 
 typedef struct {
     PositionData positionData;
-    FilteredAngles *filteredAngles;
-    SensorData *filterAccel; // Filtered accelerometer readings
+    FilteredAngles* filteredAngles;
+    SensorData* filterAccel; // Filtered accelerometer readings
 } PathCalc;
+
+typedef struct {
+    float x;
+    float y;
+} Vector;
 
 
 PathCalc* InitPathCalc(SensorData sensorData);
+
 void ResetPathCalc(PathCalc* pathCalc, SensorData sensorData);
+
 void CalcPosition(PathCalc* pathCalc, SensorData sensorData, double dt);
+
+Vector CalcVector(PositionData position, Waypoint goal, float distanceToObstacle);
 
 #endif //TOY_CAR_CALC_H

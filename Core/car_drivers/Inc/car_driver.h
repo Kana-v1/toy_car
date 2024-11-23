@@ -9,6 +9,7 @@
 #include "engine_drivers.h"
 #include "obstacles_sensor_driver.h"
 #include <stdbool.h>
+#include <math.h>
 
 #define CAR_STATE_ON    1
 #define CAR_STATE_OFF   0
@@ -34,7 +35,7 @@ void carMoveForward(void);
 
 void carMoveBack(void);
 
-void stopCar(void);
+void carStop(void);
 
 void carRotateRight(uint8_t rotateSpeed);
 
@@ -45,5 +46,7 @@ void handleBtnInterrupt(void);
 void carDetourObstacle(void);
 
 bool carMightChangeDirection(void);
+
+void carRotate(float radians);
 
 #endif //TOY_CAR_CAR_DRIVER_H

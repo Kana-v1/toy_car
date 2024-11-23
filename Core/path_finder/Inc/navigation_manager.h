@@ -41,6 +41,7 @@ typedef struct {
     float yScale;  // conversion factor for Y axis
     float xZero;   // zero point for X axis
     float yZero;   // zero point for Y axis
+    float distanceTowardsObstacle;
 } CalibrationValues;
 
 typedef struct {
