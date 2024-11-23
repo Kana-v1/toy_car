@@ -1054,7 +1054,7 @@ typedef struct
   *         of the HSE used directly or indirectly as system clock (if the Clock
   *         Security System CSS is enabled).
   * @note   HSI can not be stopped if it is used as system clock source. In this case,
-  *         you have to select another source of the system clock then stopCar the HSI.
+  *         you have to select another source of the system clock then carStop the HSI.
   * @note   After enabling the HSI, the application software should wait on HSIRDY
   *         flag to be set indicating that HSI clock is stable and can be used as
   *         system clock source.  

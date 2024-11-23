@@ -8,6 +8,9 @@
 #define VELOCITY_DECAY 0.95
 #define FILTER_THRESHOLD 0.05
 
+#define K_REPULSION 5
+#define K_ATTRACTION 1
+
 PathCalc* InitPathCalc(SensorData sensorData) {
     PathCalc* pathCalc = (PathCalc*) malloc(sizeof(PathCalc));
     ResetPathCalc(pathCalc, sensorData);
@@ -104,4 +107,33 @@ void CalcPosition(PathCalc* pathCalc, SensorData sensorData, double dt) {
     complementaryFilter(sensorData, pathCalc->filteredAngles, dt);
     lowPassFilter(sensorData, pathCalc->filterAccel);
     calcPosition(pathCalc->filterAccel, pathCalc->filteredAngles, &pathCalc->positionData, dt);
+}
+
+Vector CalcVector(PositionData position, Waypoint goal, float distanceToObstacle) {
+    Vector repulsionVector = {0};
+    Vector attractionVector = {0};
+
+    float heading_rad = position.heading * M_PI / 180.0f;
+    float obstacleX = position.pos_x + distanceToObstacle * cosf(heading_rad);
+    float obstacleY = position.pos_y + distanceToObstacle * sinf(heading_rad);
+
+    attractionVector.x = K_ATTRACTION * (goal.x - position.pos_x);
+    attractionVector.y = K_ATTRACTION * (goal.y - position.pos_y);
+
+    repulsionVector.x = K_REPULSION * (1 / pow(distanceToObstacle, 2)) * (position.pos_x - obstacleX);
+    repulsionVector.y = K_REPULSION * (1 / pow(distanceToObstacle, 2)) * (position.pos_y - obstacleY);
+
+    Vector resultVector = {0};
+
+    resultVector.x = attractionVector.x + repulsionVector.x;
+    resultVector.y = attractionVector.y + repulsionVector.y;
+
+    // normalize vector
+    float magnitude = sqrtf(resultVector.x * resultVector.x + resultVector.y * resultVector.y);
+    if (magnitude > 0) {
+        resultVector.x /= magnitude;
+        resultVector.y /= magnitude;
+    }
+
+    return resultVector;
 }

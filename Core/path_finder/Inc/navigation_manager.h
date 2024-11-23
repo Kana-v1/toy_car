@@ -41,6 +41,7 @@ typedef struct {
     float yScale;  // conversion factor for Y axis
     float xZero;   // zero point for X axis
     float yZero;   // zero point for Y axis
+    float distanceTowardsObstacle;
 } CalibrationValues;
 
 typedef struct {
@@ -53,6 +54,7 @@ typedef struct {
     CarState currentState;
     bool isNavigating;
     bool obstacleDetected;
+    bool navigationLocked;
 } NavigationManager;
 
 
@@ -77,5 +79,8 @@ void testNavManager(void);
 void moveWithNavigation(NavigationManager* manager);
 
 void calibrateNavigationManager(NavigationManager* manager);
+
+void disableNavigation(NavigationManager* manager);
+void enableNavigation(NavigationManager* manager);
 
 #endif //TOY_CAR_NAVIGATION_MANAGER_H

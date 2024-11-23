@@ -7,6 +7,8 @@
 
 bool isFirstTime = true;
 
+NavigationManager* manager;
+
 void fixBtnDebounce(void) {
     for (uint16_t i = 0; i < 50000; i++) {}
 }
@@ -24,7 +26,35 @@ void GPIO_InterruptCallback(uint8_t extiLine) {
                 return;
             }
 
-            carDetourObstacle();
+            if (!manager->isNavigating) {
+                return;
+            }
+
+            if (manager->navigationLocked) {
+                return;
+            }
+
+            disableNavigation(manager);
+
+            Vector vector = CalcVector(
+                    manager->pathCalc->positionData,
+                    manager->waypoints[manager->numWaypoints],
+                    manager->calibrationValues.distanceTowardsObstacle);
+
+            float targetAngle = atan2f(vector.y, vector.x);
+
+            carStop();
+            carRotate(targetAngle);
+            carMoveForward();
+
+            // move forward for some time, so we're far enough from the obstacle
+            HAL_Delay(10000);
+
+            enableNavigation(manager);
+
+        default:
+            return;
+
     }
 }
 
@@ -62,7 +92,7 @@ uint8_t main(void) {
         return 1;
     }
     carInit();
-    NavigationManager* manager = createNavigationManager(2);
+    manager = createNavigationManager(2);
     calibrateNavigationManager(manager);
     Waypoint pointA = {
             .x =  0,

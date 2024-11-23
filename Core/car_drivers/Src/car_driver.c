@@ -4,8 +4,6 @@
 
 #include "car_driver.h"
 
-bool MIGHT_CHANGE_DIRECTION = true;
-
 void carInit(void) {
     initCarManagementPeripheral();
     initObstaclesSensor();
@@ -24,7 +22,7 @@ void toggleCarState(void) {
     if (newCarState == CAR_STATE_ON) {
         carMoveForward();
     } else {
-        stopCar();
+        carStop();
     }
 }
 
@@ -75,7 +73,7 @@ void carMoveBack(void) {
     engineAnticlockwiseRotating(LEFT_ENGINE);
 }
 
-void stopCar(void) {
+void carStop(void) {
     turnOffEngines();
 }
 
@@ -111,27 +109,24 @@ void handleBtnInterrupt(void) {
     toggleCarState();
 }
 
-void carDetourObstacle(void) {
-    MIGHT_CHANGE_DIRECTION = false;
-    for (uint32_t i = 0; i < 100000; i++) {
-        carMoveBack();
+void carRotate(float radians) {
+
+    float rotatePerMSDeg = 0.01f;
+    float angleDeg = radians * (float) (180 / M_PI);
+
+    angleDeg = fmodf(angleDeg, 360.0f);
+
+    float angleToRotate;
+
+    if (angleDeg > 180) {
+        angleToRotate = 360 - angleDeg;
+        carRotateLeft(ROTATE_SPEED_NORMAL);
+    } else {
+        angleToRotate = angleDeg;
+        carRotateRight(ROTATE_SPEED_NORMAL);
     }
 
-    int whereToTurn = rand() % 2;
-
-    for (uint32_t i = 0; i < 100000; i++) {
-        if (whereToTurn == TURN_LEFT) {
-            carRotateLeft(ROTATE_SPEED_NORMAL);
-        } else {
-            carRotateRight(ROTATE_SPEED_NORMAL);
-        }
-    }
-
-    carMoveForward();
-    MIGHT_CHANGE_DIRECTION = true;
-}
-
-bool carMightChangeDirection(void) {
-    return MIGHT_CHANGE_DIRECTION;
+    float rotationTime = ceilf(angleToRotate / rotatePerMSDeg);
+    HAL_Delay((uint32_t) rotationTime);
 }
 
