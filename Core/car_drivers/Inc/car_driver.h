@@ -43,10 +43,6 @@ void carRotateLeft(uint8_t rotateSpeed);
 
 void handleBtnInterrupt(void);
 
-void carDetourObstacle(void);
-
-bool carMightChangeDirection(void);
-
 void carRotate(float radians);
 
 #endif //TOY_CAR_CAR_DRIVER_H

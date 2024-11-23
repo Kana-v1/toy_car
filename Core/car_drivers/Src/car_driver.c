@@ -4,8 +4,6 @@
 
 #include "car_driver.h"
 
-bool MIGHT_CHANGE_DIRECTION = true;
-
 void carInit(void) {
     initCarManagementPeripheral();
     initObstaclesSensor();
@@ -111,28 +109,7 @@ void handleBtnInterrupt(void) {
     toggleCarState();
 }
 
-void carDetourObstacle(void) {
-    MIGHT_CHANGE_DIRECTION = false;
-    for (uint32_t i = 0; i < 100000; i++) {
-        carMoveBack();
-    }
-
-    int whereToTurn = rand() % 2;
-
-    for (uint32_t i = 0; i < 100000; i++) {
-        if (whereToTurn == TURN_LEFT) {
-            carRotateLeft(ROTATE_SPEED_NORMAL);
-        } else {
-            carRotateRight(ROTATE_SPEED_NORMAL);
-        }
-    }
-
-    carMoveForward();
-    MIGHT_CHANGE_DIRECTION = true;
-}
-
 void carRotate(float radians) {
-    MIGHT_CHANGE_DIRECTION = false;
 
     float rotatePerMSDeg = 0.01f;
     float angleDeg = radians * (float) (180 / M_PI);
@@ -151,9 +128,5 @@ void carRotate(float radians) {
 
     float rotationTime = ceilf(angleToRotate / rotatePerMSDeg);
     HAL_Delay((uint32_t) rotationTime);
-}
-
-bool carMightChangeDirection(void) {
-    return MIGHT_CHANGE_DIRECTION;
 }
 

@@ -179,12 +179,24 @@ void stopNavigation(NavigationManager* manager) {
     }
 }
 
+void disableNavigation(NavigationManager* manager) {
+    manager->navigationLocked = true;
+}
+
+void enableNavigation(NavigationManager* manager) {
+  manager->navigationLocked = false;
+}
+
 void updateNavigation(NavigationManager* manager) {
     if (!manager || !manager->isNavigating || manager->currentWaypoint >= manager->numWaypoints) {
         return;
     }
 
     if (updatePosition(manager, GetTick()) != 0) {
+        return;
+    }
+
+    if (!manager->waypoints) {
         return;
     }
 
@@ -206,23 +218,15 @@ void updateNavigation(NavigationManager* manager) {
         }
     }
 
-    float targetAngle = calculateAngleBetweenPoints(current, target);
-    float angleDif = getAngleDifference(manager->currentState.heading, targetAngle);
-
-    if (!carMightChangeDirection()) {
+    if (manager->navigationLocked) {
         return;
     }
 
-    if (fabsf(angleDif) > HEADING_THRESHOLD) {
-        if (angleDif > 0) {
-            carRotateRight(ROTATE_SPEED_NORMAL);
-            return;
-        }
+    float targetAngle = calculateAngleBetweenPoints(current, target);
+    float angleDif = getAngleDifference(manager->currentState.heading, targetAngle);
 
-        if (angleDif < 0) {
-            carRotateLeft(ROTATE_SPEED_NORMAL);
-            return;
-        }
+    if (fabsf(angleDif) > HEADING_THRESHOLD) {
+        carRotate(angleDif * (float) M_PI / (float) 180);
     }
 
     carMoveForward();

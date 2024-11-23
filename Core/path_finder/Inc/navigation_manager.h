@@ -54,6 +54,7 @@ typedef struct {
     CarState currentState;
     bool isNavigating;
     bool obstacleDetected;
+    bool navigationLocked;
 } NavigationManager;
 
 
@@ -78,5 +79,8 @@ void testNavManager(void);
 void moveWithNavigation(NavigationManager* manager);
 
 void calibrateNavigationManager(NavigationManager* manager);
+
+void disableNavigation(NavigationManager* manager);
+void enableNavigation(NavigationManager* manager);
 
 #endif //TOY_CAR_NAVIGATION_MANAGER_H
